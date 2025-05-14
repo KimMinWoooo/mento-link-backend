@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>학습 게시판</title>
+    <link rel="stylesheet" href="MentoringPage.css">
+    <style>
+      /* 추가 스타일 */
+      .menu {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .menu a {
+        padding: 10px;
+        text-decoration: none;
+        color: #333;
+        border-radius: 5px;
+        transition: background-color 0.2s;
+      }
+
+      .menu a:hover {
+        background-color: #f0f0f0;
+      }
+
+      .menu a.active {
+        background-color: #e0e0e0;
+        font-weight: bold;
+      }
+
+      .post {
+        display: grid;
+        grid-template-columns: 3fr 1fr 1fr auto;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+      }
+
+      .post:hover {
+        background-color: #f9f9f9;
+      }
+
+      .post-title {
+        font-weight: bold;
+      }
+
+      .post-meta {
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      .post-actions {
+        display: flex;
+        gap: 10px;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .post:hover .post-actions {
+        opacity: 1;
+      }
+
+      .post-actions button {
+        padding: 4px 8px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .edit-button {
+        background-color: #2196F3;
+        color: white;
+      }
+
+      .delete-button {
+        background-color: #f44336;
+        color: white;
+      }
+
+      .progress-goals {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f5f5f5;
+        border-radius: 5px;
+      }
+
+      .goal-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 5px;
+      }
+
+      .goal-item.completed {
+        color: #666;
+        text-decoration: line-through;
+      }
+
+      .schedule-info {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f5f5f5;
+        border-radius: 5px;
+      }
+
+      .grade-info {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f5f5f5;
+        border-radius: 5px;
+      }
+
+      .grade-progress {
+        height: 20px;
+        background-color: #eee;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 5px;
+      }
+
+      .grade-progress-bar {
+        height: 100%;
+        background-color: #4CAF50;
+        transition: width 0.3s;
+      }
+
+      /* 모달 스타일 추가 */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+
+      .modal-content {
+        position: relative;
+        background-color: #fff;
+        margin: 50px auto;
+        padding: 20px;
+        width: 80%;
+        max-width: 800px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .close-button {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+
+      .form-group input[type="text"],
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .form-group textarea {
+        height: 200px;
+        resize: vertical;
+      }
+
+      .form-actions {
+        text-align: right;
+        margin-top: 20px;
+      }
+
+      .form-actions button {
+        padding: 8px 16px;
+        margin-left: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .form-actions .submit-button {
+        background-color: #4CAF50;
+        color: white;
+      }
+
+      .form-actions .cancel-button {
+        background-color: #f44336;
+        color: white;
+      }
+
+      .file-upload {
+        margin-top: 10px;
+      }
+
+      .file-list {
+        margin-top: 10px;
+      }
+
+      .file-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 5px;
+      }
+
+      .file-item button {
+        padding: 4px 8px;
+        background-color: #f44336;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .write-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .write-button:hover {
+        background-color: #45a049;
+      }
+
+      /* 확인 모달 스타일 */
+      .confirm-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+      }
+
+      .confirm-modal-content {
+        position: relative;
+        background-color: #fff;
+        margin: 200px auto;
+        padding: 20px;
+        width: 300px;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .confirm-modal-buttons {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .confirm-modal-buttons button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .confirm-button {
+        background-color: #f44336;
+        color: white;
+      }
+
+      .cancel-button {
+        background-color: #9e9e9e;
+        color: white;
+      }
+
+      /* 기존 스타일에 추가 */
+      .post-content {
+        margin: 20px 0;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+
+      .post-meta {
+        color: #666;
+        font-size: 0.9em;
+        margin: 10px 0;
+      }
+
+      .post-meta span {
+        margin-right: 15px;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="sidebar">
+      <h2>멘토링 게시판</h2>
+
+      <div class="menu">
+        <a href="#" data-type="notice" class="active">공지사항</a>
+        <a href="#" data-type="progress">진행상황</a>
+        <a href="#" data-type="materials">자료실</a>
+        <a href="#" data-type="qa">질의응답</a>
+        <a href="#" data-type="suggestion">건의사항</a>
+        <a href="#" data-type="schedule">일정 조율</a>
+        <a href="#" data-type="grade">목표 학점</a>
+      </div>
+
+    </div>
+
+  
+    <div class="main-content">
+      <div class="page-title" id="boardTitle">멘토링 게시판</div>
+
+      <div class="board-content">
+
+        <div class="board-header">
+          <div class="header-title">제목</div>
+          <div class="header-author">작성자</div>
+          <div class="header-date">작성일</div>
+        </div>
+
+        <div id="postList">
+          <!-- 게시물이 여기에 동적으로 추가됩니다 -->
+        </div>
+  
+      </div>
+    </div>
+
+    <!-- 게시글 작성 버튼 -->
+    <button class="write-button" onclick="openWriteModal()">+</button>
+
+    <!-- 게시글 작성/수정 모달 -->
+    <div id="postModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle">게시글 작성</h2>
+        <form id="postForm" onsubmit="handleSubmit(event)">
+          <div class="form-group">
+            <label for="title">제목</label>
+            <input type="text" id="title" name="title" required>
+          </div>
+
+          <div class="form-group">
+            <label for="content">내용</label>
+            <textarea id="content" name="content" required></textarea>
+          </div>
+
+          <!-- 진행상황 게시글일 경우 -->
+          <div id="progressFields" style="display: none;">
+            <div class="form-group">
+              <label for="week">주차</label>
+              <input type="number" id="week" name="week" min="1" max="16">
+            </div>
+            <div class="form-group">
+              <label>학습 목표</label>
+              <div id="learningGoals">
+                <div class="goal-item">
+                  <input type="text" name="goals[]" placeholder="학습 목표를 입력하세요">
+                  <button type="button" onclick="addGoal()">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 일정 조율 게시글일 경우 -->
+          <div id="scheduleFields" style="display: none;">
+            <div class="form-group">
+              <label for="startDate">시작 일시</label>
+              <input type="datetime-local" id="startDate" name="startDate">
+            </div>
+            <div class="form-group">
+              <label for="endDate">종료 일시</label>
+              <input type="datetime-local" id="endDate" name="endDate">
+            </div>
+            <div class="form-group">
+              <label for="location">장소</label>
+              <input type="text" id="location" name="location">
+            </div>
+            <div class="form-group">
+              <label for="participants">참여자</label>
+              <input type="text" id="participants" name="participants" placeholder="쉼표로 구분하여 입력">
+            </div>
+          </div>
+
+          <!-- 목표 학점 게시글일 경우 -->
+          <div id="gradeFields" style="display: none;">
+            <div class="form-group">
+              <label for="targetGrade">목표 학점</label>
+              <input type="number" id="targetGrade" name="targetGrade" min="0" max="4.5" step="0.1">
+            </div>
+            <div class="form-group">
+              <label for="currentGrade">현재 학점</label>
+              <input type="number" id="currentGrade" name="currentGrade" min="0" max="4.5" step="0.1">
+            </div>
+            <div class="form-group">
+              <label for="semester">학기</label>
+              <input type="text" id="semester" name="semester" placeholder="예: 2024-1">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="files">파일 첨부</label>
+            <input type="file" id="files" name="files" multiple>
+            <div class="file-list" id="fileList"></div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="isPublic" name="isPublic" checked>
+              공개 게시글
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="cancel-button" onclick="closeModal()">취소</button>
+            <button type="submit" class="submit-button">저장</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 확인 모달 -->
+    <div id="confirmModal" class="confirm-modal">
+      <div class="confirm-modal-content">
+        <h3>게시글 삭제</h3>
+        <p>정말로 이 게시글을 삭제하시겠습니까?</p>
+        <div class="confirm-modal-buttons">
+          <button class="cancel-button" onclick="closeConfirmModal()">취소</button>
+          <button class="confirm-button" onclick="deletePost()">삭제</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 게시글 내용 보기 모달 -->
+    <div id="viewModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button" onclick="closeViewModal()">&times;</span>
+        <h2 id="viewTitle"></h2>
+        <div class="post-meta" id="viewMeta"></div>
+        <div class="post-content" id="viewContent"></div>
+        <div id="viewAdditionalContent"></div>
+      </div>
+    </div>
+
+    <script>
+      // API 기본 URL
+      const API_BASE_URL = '/api';
+
+      // URL 파라미터 가져오기
+      const urlParams = new URLSearchParams(window.location.search);
+      const cohortId = urlParams.get('cohortId');
+      const subjectId = urlParams.get('subjectId');
+      const postType = urlParams.get('type') || 'notice';
+
+      // 게시물 목록 가져오기
+      async function getPosts() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/boards/subject/${subjectId}/${postType}`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const posts = await response.json();
+          const postList = document.getElementById('postList');
+          
+          if (posts.length === 0) {
+            postList.innerHTML = '<div class="no-posts">게시글이 없습니다.</div>';
+            return;
+          }
+
+          postList.innerHTML = posts.map(post => {
+            let additionalContent = '';
+            
+            // 진행상황 게시글
+            if (postType === 'progress' && post.learningGoals) {
+              additionalContent = `
+                <div class="progress-goals">
+                  ${post.learningGoals.map(goal => `
+                    <div class="goal-item ${goal.completed ? 'completed' : ''}">
+                      <input type="checkbox" ${goal.completed ? 'checked' : ''} disabled>
+                      <span>${goal.goal}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }
+            
+            // 일정 조율 게시글
+            if (postType === 'schedule' && post.schedule) {
+              additionalContent = `
+                <div class="schedule-info">
+                  <div>일시: ${new Date(post.schedule.startDate).toLocaleString()} ~ ${new Date(post.schedule.endDate).toLocaleString()}</div>
+                  <div>장소: ${post.schedule.location}</div>
+                  <div>참여자: ${post.schedule.participants.join(', ')}</div>
+                </div>
+              `;
+            }
+            
+            // 목표 학점 게시글
+            if (postType === 'grade' && post.grade) {
+              const progress = (post.grade.current / post.grade.target) * 100;
+              additionalContent = `
+                <div class="grade-info">
+                  <div>목표 학점: ${post.grade.target}</div>
+                  <div>현재 학점: ${post.grade.current}</div>
+                  <div>학기: ${post.grade.semester}</div>
+                  <div class="grade-progress">
+                    <div class="grade-progress-bar" style="width: ${progress}%"></div>
+                  </div>
+                </div>
+              `;
+            }
+
+            return `
+              <div class="post" data-id="${post._id}" onclick="openViewModal('${post._id}')">
+                <div class="post-title">${post.title}</div>
+                <div class="post-meta">${post.author}</div>
+                <div class="post-meta">${new Date(post.createdAt).toLocaleDateString()}</div>
+                <div class="post-actions">
+                  <button class="edit-button" onclick="event.stopPropagation(); openEditModal('${post._id}')">수정</button>
+                  <button class="delete-button" onclick="event.stopPropagation(); confirmDelete('${post._id}')">삭제</button>
+                </div>
+                ${additionalContent}
+              </div>
+            `;
+          }).join('');
+        } catch (error) {
+          console.error('Error fetching posts:', error);
+          document.getElementById('postList').innerHTML = 
+            '<div class="error-message">게시글을 불러오는 중 오류가 발생했습니다.</div>';
+        }
+      }
+
+      // 과목 정보 가져오기
+      async function getSubject() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/subjects/${subjectId}`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const subject = await response.json();
+          document.getElementById('boardTitle').textContent = `${subject.name} - ${getBoardTypeName(postType)}`;
+        } catch (error) {
+          console.error('Error fetching subject:', error);
+          document.getElementById('boardTitle').textContent = '멘토링 게시판';
+        }
+      }
+
+      // 게시판 타입 이름 가져오기
+      function getBoardTypeName(type) {
+        const types = {
+          'notice': '공지사항',
+          'progress': '진행상황',
+          'materials': '자료실',
+          'qa': '질의응답',
+          'suggestion': '건의사항',
+          'schedule': '일정 조율',
+          'grade': '목표 학점'
+        };
+        return types[type] || type;
+      }
+
+      // 메뉴 클릭 이벤트 처리
+      document.querySelectorAll('.menu a').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const type = e.target.dataset.type;
+          
+          // 활성 메뉴 업데이트
+          document.querySelectorAll('.menu a').forEach(a => a.classList.remove('active'));
+          e.target.classList.add('active');
+          
+          window.location.href = `/mentoring?cohortId=${cohortId}&subjectId=${subjectId}&type=${type}`;
+        });
+      });
+
+      // 페이지 로드 시 데이터 가져오기
+      window.addEventListener('load', () => {
+        if (subjectId) {
+          getSubject();
+          getPosts();
+          
+          // 현재 활성 메뉴 표시
+          const activeMenu = document.querySelector(`.menu a[data-type="${postType}"]`);
+          if (activeMenu) {
+            activeMenu.classList.add('active');
+          }
+        } else {
+          document.getElementById('postList').innerHTML = 
+            '<div class="error-message">과목 정보가 없습니다.</div>';
+        }
+      });
+
+      // 모달 관련 함수들
+      function openWriteModal() {
+        document.getElementById('modalTitle').textContent = '게시글 작성';
+        document.getElementById('postForm').reset();
+        document.getElementById('postModal').style.display = 'block';
+        
+        // 게시판 타입에 따른 필드 표시
+        const progressFields = document.getElementById('progressFields');
+        const scheduleFields = document.getElementById('scheduleFields');
+        const gradeFields = document.getElementById('gradeFields');
+        
+        progressFields.style.display = postType === 'progress' ? 'block' : 'none';
+        scheduleFields.style.display = postType === 'schedule' ? 'block' : 'none';
+        gradeFields.style.display = postType === 'grade' ? 'block' : 'none';
+      }
+
+      function closeModal() {
+        document.getElementById('postModal').style.display = 'none';
+      }
+
+      function addGoal() {
+        const goalsContainer = document.getElementById('learningGoals');
+        const newGoal = document.createElement('div');
+        newGoal.className = 'goal-item';
+        newGoal.innerHTML = `
+          <input type="text" name="goals[]" placeholder="학습 목표를 입력하세요">
+          <button type="button" onclick="this.parentElement.remove()">-</button>
+        `;
+        goalsContainer.appendChild(newGoal);
+      }
+
+      // 파일 업로드 미리보기
+      document.getElementById('files').addEventListener('change', function(e) {
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+        
+        Array.from(e.target.files).forEach(file => {
+          const fileItem = document.createElement('div');
+          fileItem.className = 'file-item';
+          fileItem.innerHTML = `
+            <span>${file.name}</span>
+            <span>(${(file.size / 1024).toFixed(1)} KB)</span>
+          `;
+          fileList.appendChild(fileItem);
+        });
+      });
+
+      let currentPostId = null;
+
+      // 수정 모달 열기
+      async function openEditModal(postId) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/boards/${postId}`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const post = await response.json();
+          
+          document.getElementById('modalTitle').textContent = '게시글 수정';
+          document.getElementById('title').value = post.title;
+          document.getElementById('content').value = post.content;
+          document.getElementById('isPublic').checked = post.isPublic;
+          
+          // 게시판 타입별 필드 설정
+          if (postType === 'progress') {
+            document.getElementById('week').value = post.week;
+            const goalsContainer = document.getElementById('learningGoals');
+            goalsContainer.innerHTML = '';
+            post.learningGoals.forEach(goal => {
+              const goalItem = document.createElement('div');
+              goalItem.className = 'goal-item';
+              goalItem.innerHTML = `
+                <input type="text" name="goals[]" value="${goal.goal}" placeholder="학습 목표를 입력하세요">
+                <button type="button" onclick="this.parentElement.remove()">-</button>
+              `;
+              goalsContainer.appendChild(goalItem);
+            });
+          } else if (postType === 'schedule') {
+            document.getElementById('startDate').value = new Date(post.schedule.startDate).toISOString().slice(0, 16);
+            document.getElementById('endDate').value = new Date(post.schedule.endDate).toISOString().slice(0, 16);
+            document.getElementById('location').value = post.schedule.location;
+            document.getElementById('participants').value = post.schedule.participants.join(', ');
+          } else if (postType === 'grade') {
+            document.getElementById('targetGrade').value = post.grade.target;
+            document.getElementById('currentGrade').value = post.grade.current;
+            document.getElementById('semester').value = post.grade.semester;
+          }
+          
+          currentPostId = postId;
+          document.getElementById('postModal').style.display = 'block';
+        } catch (error) {
+          console.error('Error fetching post:', error);
+          alert('게시글을 불러오는 중 오류가 발생했습니다.');
+        }
+      }
+
+      // 삭제 확인 모달 열기
+      function confirmDelete(postId) {
+        currentPostId = postId;
+        document.getElementById('confirmModal').style.display = 'block';
+      }
+
+      // 삭제 확인 모달 닫기
+      function closeConfirmModal() {
+        document.getElementById('confirmModal').style.display = 'none';
+        currentPostId = null;
+      }
+
+      // 게시글 삭제
+      async function deletePost() {
+        if (!currentPostId) return;
+        
+        try {
+          const response = await fetch(`${API_BASE_URL}/boards/${currentPostId}`, {
+            method: 'DELETE'
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          closeConfirmModal();
+          getPosts(); // 게시글 목록 새로고침
+        } catch (error) {
+          console.error('Error deleting post:', error);
+          alert('게시글 삭제 중 오류가 발생했습니다.');
+        }
+      }
+
+      // 폼 제출 처리
+      async function handleSubmit(event) {
+        event.preventDefault();
+        
+        // FormData 대신 일반 객체 사용
+        const postData = {
+          type: postType,
+          subject: subjectId,
+          title: document.getElementById('title').value,
+          content: document.getElementById('content').value,
+          author: '홍길동', // TODO: 실제 사용자 정보로 대체
+          isPublic: document.getElementById('isPublic').checked
+        };
+        
+        // 게시판 타입별 추가 필드 처리
+        if (postType === 'progress') {
+          postData.week = document.getElementById('week').value;
+          const goals = Array.from(document.querySelectorAll('input[name="goals[]"]'))
+            .map(input => input.value)
+            .filter(value => value.trim() !== '');
+          postData.goals = goals;
+        } else if (postType === 'schedule') {
+          postData.startDate = document.getElementById('startDate').value;
+          postData.endDate = document.getElementById('endDate').value;
+          postData.location = document.getElementById('location').value;
+          postData.participants = document.getElementById('participants').value;
+        } else if (postType === 'grade') {
+          postData.targetGrade = document.getElementById('targetGrade').value;
+          postData.currentGrade = document.getElementById('currentGrade').value;
+          postData.semester = document.getElementById('semester').value;
+        }
+        
+        try {
+          const url = currentPostId 
+            ? `${API_BASE_URL}/boards/${currentPostId}`
+            : `${API_BASE_URL}/boards`;
+            
+          const response = await fetch(url, {
+            method: currentPostId ? 'PUT' : 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(postData)
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          }
+
+          closeModal();
+          currentPostId = null;
+          getPosts(); // 게시글 목록 새로고침
+        } catch (error) {
+          console.error('Error submitting post:', error);
+          alert(error.message || '게시글 저장 중 오류가 발생했습니다.');
+        }
+      }
+
+      // 게시글 보기 모달 열기
+      async function openViewModal(postId) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/boards/${postId}`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const post = await response.json();
+          
+          document.getElementById('viewTitle').textContent = post.title;
+          document.getElementById('viewMeta').innerHTML = `
+            <span>작성자: ${post.author}</span>
+            <span>작성일: ${new Date(post.createdAt).toLocaleString()}</span>
+          `;
+          document.getElementById('viewContent').textContent = post.content;
+          
+          // 게시판 타입별 추가 내용 표시
+          const additionalContent = document.getElementById('viewAdditionalContent');
+          if (postType === 'progress' && post.learningGoals) {
+            additionalContent.innerHTML = `
+              <div class="progress-goals">
+                <h3>학습 목표</h3>
+                ${post.learningGoals.map(goal => `
+                  <div class="goal-item ${goal.completed ? 'completed' : ''}">
+                    <input type="checkbox" ${goal.completed ? 'checked' : ''} disabled>
+                    <span>${goal.goal}</span>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          } else if (postType === 'schedule' && post.schedule) {
+            additionalContent.innerHTML = `
+              <div class="schedule-info">
+                <h3>일정 정보</h3>
+                <div>일시: ${new Date(post.schedule.startDate).toLocaleString()} ~ ${new Date(post.schedule.endDate).toLocaleString()}</div>
+                <div>장소: ${post.schedule.location}</div>
+                <div>참여자: ${post.schedule.participants.join(', ')}</div>
+              </div>
+            `;
+          } else if (postType === 'grade' && post.grade) {
+            const progress = (post.grade.current / post.grade.target) * 100;
+            additionalContent.innerHTML = `
+              <div class="grade-info">
+                <h3>학점 정보</h3>
+                <div>목표 학점: ${post.grade.target}</div>
+                <div>현재 학점: ${post.grade.current}</div>
+                <div>학기: ${post.grade.semester}</div>
+                <div class="grade-progress">
+                  <div class="grade-progress-bar" style="width: ${progress}%"></div>
+                </div>
+              </div>
+            `;
+          } else {
+            additionalContent.innerHTML = '';
+          }
+          
+          document.getElementById('viewModal').style.display = 'block';
+        } catch (error) {
+          console.error('Error fetching post:', error);
+          alert('게시글을 불러오는 중 오류가 발생했습니다.');
+        }
+      }
+
+      // 게시글 보기 모달 닫기
+      function closeViewModal() {
+        document.getElementById('viewModal').style.display = 'none';
+      }
+
+      // 모달 외부 클릭 시 닫기 수정
+      window.onclick = function(event) {
+        const postModal = document.getElementById('postModal');
+        const confirmModal = document.getElementById('confirmModal');
+        const viewModal = document.getElementById('viewModal');
+        
+        if (event.target === postModal) {
+          closeModal();
+        } else if (event.target === confirmModal) {
+          closeConfirmModal();
+        } else if (event.target === viewModal) {
+          closeViewModal();
+        }
+      }
+    </script>
+
+  </body>
+</html>

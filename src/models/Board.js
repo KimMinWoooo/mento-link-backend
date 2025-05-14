@@ -8,7 +8,15 @@ const boardSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['progress', 'materials', 'qa', 'notice', 'suggestion'],
+    enum: [
+      'notice',      // 공지사항
+      'progress',    // 진행상황
+      'materials',   // 자료실
+      'qa',         // 질의응답
+      'suggestion', // 건의사항
+      'schedule',   // 일정 조율
+      'grade'       // 목표 학점
+    ],
     required: true
   },
   title: {
@@ -29,11 +37,37 @@ const boardSchema = new mongoose.Schema({
       return this.type === 'progress';
     }
   },
+  learningGoals: [{
+    goal: String,
+    completed: {
+      type: Boolean,
+      default: false
+    }
+  }],
+  schedule: {
+    startDate: Date,
+    endDate: Date,
+    location: String,
+    participants: [String]
+  },
+  grade: {
+    target: Number,
+    current: Number,
+    semester: String
+  },
   attachments: [{
     filename: String,
     url: String,
-    uploadedAt: Date
+    uploadedAt: Date,
+    isPublic: {
+      type: Boolean,
+      default: true
+    }
   }],
+  isPublic: {
+    type: Boolean,
+    default: true
+  },
   createdAt: {
     type: Date,
     default: Date.now

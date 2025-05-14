@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>멘토링 메인 페이지</title>
+        <link rel="stylesheet" href="MainPage.css">
+    </head>
+
+    <body>
+        <div class="title">
+            숭실대학교 멘토링 사이트<br>멘토링크
+        </div>
+
+        <div class="notice">
+            <h2>공지사항</h2>
+
+            <ul>
+
+            <li>
+                <a href="#">공지사항 1</a>
+                <span class="date">2025-05-01</span>
+            </li>
+
+            <li>
+                <a href="#">공지사항 2</a>
+                <span class="date">2025-04-28</span>
+            </li>
+
+            </ul>
+        </div>
+
+        <div class="generations" id="cohortList">
+            <!-- 기수 목록이 여기에 동적으로 추가됩니다 -->
+        </div>
+
+        <script>
+            // API 기본 URL
+            const API_BASE_URL = '/api';
+
+            // 기수 목록 가져오기
+            async function getCohorts() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/cohorts`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const cohorts = await response.json();
+                    const cohortList = document.getElementById('cohortList');
+                    
+                    if (cohorts.length === 0) {
+                        cohortList.innerHTML = '<div class="no-cohorts">등록된 기수가 없습니다.</div>';
+                        return;
+                    }
+
+                    cohortList.innerHTML = cohorts.map(cohort => `
+                        <div class="gen-box">
+                            <a href="/subjects?cohortId=${cohort._id}">${cohort.number}기 멘토링 게시판</a>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Error fetching cohorts:', error);
+                    document.getElementById('cohortList').innerHTML = 
+                        '<div class="error-message">기수 목록을 불러오는 중 오류가 발생했습니다.</div>';
+                }
+            }
+
+            // 페이지 로드 시 데이터 가져오기
+            window.addEventListener('load', () => {
+                getCohorts();
+            });
+        </script>
+    </body>
+</html>

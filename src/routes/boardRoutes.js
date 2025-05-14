@@ -6,7 +6,7 @@ const boardController = require('../controllers/boardController');
 router.get('/subject/:subjectId', boardController.getPosts);
 
 // Get posts by subject and type
-router.get('/subject/:subjectId/type/:type', boardController.getPosts);
+router.get('/subject/:subjectId/:type', boardController.getPosts);
 
 // Get single post
 router.get('/:id', boardController.getPost);
