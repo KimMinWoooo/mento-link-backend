@@ -8,67 +8,89 @@
     </head>
 
     <body>
+
+        <!-- 1단 -->
         <div class="title">
-            숭실대학교 멘토링 사이트<br>멘토링크
+            <a href="/">
+                <img src="images/Mentolinklogo.png" alt="멘토링크 로고" class="logo">
+            </a>
+            <h5>숭실대학교 멘토링 페이지</h5>            
         </div>
 
+        <!-- 2단 -->
         <div class="notice">
-            <h2>공지사항</h2>
 
-            <ul>
+            <!-- 사진 슬라이드 -->
+            <div class="SlideBackground">
+                <div class="slide slide1"></div>
+                <div class="slide slide2"></div>
+                <div class="slide slide3"></div>
+                <div class="slide slide4"></div>
+            </div>
 
-            <li>
-                <a href="#">공지사항 1</a>
-                <span class="date">2025-05-01</span>
-            </li>
+            <div class="NoticeBox">
+                <h2>공지사항</h2>
+                <ul class="notice-list">
 
-            <li>
-                <a href="#">공지사항 2</a>
-                <span class="date">2025-04-28</span>
-            </li>
-
-            </ul>
-        </div>
-
-        <div class="generations" id="cohortList">
-            <!-- 기수 목록이 여기에 동적으로 추가됩니다 -->
-        </div>
-
-        <script>
-            // API 기본 URL
-            const API_BASE_URL = '/api';
-
-            // 기수 목록 가져오기
-            async function getCohorts() {
-                try {
-                    const response = await fetch(`${API_BASE_URL}/cohorts`);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const cohorts = await response.json();
-                    const cohortList = document.getElementById('cohortList');
+                    <li>
+                        <a href="#">공지사항 1</a>
+                        <span class="date">2025-05-01</span>
+                    </li>
                     
-                    if (cohorts.length === 0) {
-                        cohortList.innerHTML = '<div class="no-cohorts">등록된 기수가 없습니다.</div>';
-                        return;
-                    }
+                    <li>
+                        <a href="#">공지사항 2</a>
+                        <span class="date">2025-04-28</span>
+                    </li>
+                </ul>
 
-                    cohortList.innerHTML = cohorts.map(cohort => `
-                        <div class="gen-box">
-                            <a href="/subjects?cohortId=${cohort._id}">${cohort.number}기 멘토링 게시판</a>
-                        </div>
-                    `).join('');
-                } catch (error) {
-                    console.error('Error fetching cohorts:', error);
-                    document.getElementById('cohortList').innerHTML = 
-                        '<div class="error-message">기수 목록을 불러오는 중 오류가 발생했습니다.</div>';
-                }
-            }
+                <div class="ViewMore">
+                    <a href="#">전체보기</a>
+                </div>
+            </div>
 
-            // 페이지 로드 시 데이터 가져오기
-            window.addEventListener('load', () => {
-                getCohorts();
-            });
-        </script>
+        </div>
+
+        <!--3단-->
+
+        <div class="MentoringSection">
+            <div class = "GenSection">
+                <div class="generations" id="cohortList">
+                    <!-- 기수 목록이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
+
+            <div class="SubSection">
+                <h2>기수별 멘토링 페이지</h2>
+
+                <div class="SubDetail">
+                    <div class="DefaultMessage">기수를 선택해주세요.</div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- 공지 모달 -->
+        <div id="noticeModal" class="modal">
+            <div class="modal-content">
+                <span class="close-detail close-btn">&times;</span>
+                <h2 class="modal-title">공지 제목</h2>
+                <p class="modal-body">공지 내용</p>
+            </div>
+        </div>
+        
+        <!-- 공지 목록 모달 -->
+        <div id="noticeListModal" class="modal">
+            <div class="modal-content">
+                <span class="close-list close-btn">&times;</span>
+                <h2 class="modal-title">공지사항 목록</h2>
+                <ul class="modal-list">
+                    <li><a href="#" class="open-notice" data-id="1">공지사항 1</a></li>
+                    <li><a href="#" class="open-notice" data-id="2">공지사항 2</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <script src = "MainPage.js"></script>
     </body>
 </html>

@@ -70,80 +70,6 @@ const sampleData = {
         }
       ]
     }
-  ],
-  boards: [
-    {
-      subject: subjects[0]._id,
-      type: 'notice',
-      title: '멘토링 시작 안내',
-      content: '자바스크립트 기초 멘토링이 시작됩니다. 매주 월요일 오후 2시에 진행됩니다.',
-      author: '홍길동',
-      createdAt: new Date('2024-03-01')
-    },
-    {
-      subject: subjects[0]._id,
-      type: 'notice',
-      title: '과제 제출 안내',
-      content: '이번 주 과제는 JavaScript 기본 문법 실습입니다. 다음 수업 전까지 제출해주세요.',
-      author: '홍길동',
-      createdAt: new Date('2024-03-05')
-    },
-    {
-      subject: subjects[0]._id,
-      type: 'notice',
-      title: '수업 자료 업로드',
-      content: '이번 주 수업 자료가 업로드되었습니다. 미리 예습해주세요.',
-      author: '홍길동',
-      createdAt: new Date('2024-03-08')
-    },
-    {
-      subject: subjects[1]._id,
-      type: 'notice',
-      title: '리액트 심화 멘토링 안내',
-      content: '리액트 심화 멘토링이 시작됩니다. 매주 수요일 오후 3시에 진행됩니다.',
-      author: '박지성',
-      createdAt: new Date('2024-03-01')
-    },
-    {
-      subject: subjects[1]._id,
-      type: 'notice',
-      title: '프로젝트 발표 일정',
-      content: '최종 프로젝트 발표는 4월 15일 오후 2시에 진행됩니다.',
-      author: '박지성',
-      createdAt: new Date('2024-03-10')
-    },
-    {
-      subject: subjects[1]._id,
-      type: 'notice',
-      title: '리액트 라이브러리 소개',
-      content: '이번 주는 Redux와 React Query에 대해 학습합니다.',
-      author: '박지성',
-      createdAt: new Date('2024-03-12')
-    },
-    {
-      subject: subjects[0]._id,
-      type: 'progress',
-      title: '1주차 학습 진도',
-      content: '자바스크립트 기본 문법과 변수, 함수에 대해 학습했습니다.',
-      author: '김철수',
-      createdAt: new Date('2024-03-04')
-    },
-    {
-      subject: subjects[0]._id,
-      type: 'materials',
-      title: '자바스크립트 기초 자료',
-      content: '자바스크립트 기본 문법과 예제 코드가 포함된 자료입니다.',
-      author: '홍길동',
-      createdAt: new Date('2024-03-02')
-    },
-    {
-      subject: subjects[0]._id,
-      type: 'qa',
-      title: '자바스크립트 질문',
-      content: '클로저와 스코프에 대해 더 자세히 설명해주세요.',
-      author: '이영희',
-      createdAt: new Date('2024-03-03')
-    }
   ]
 };
 
@@ -168,13 +94,93 @@ async function seed() {
     );
     console.log('Subjects seeded');
 
+    // boards 데이터 생성 (subjects의 _id를 참조)
+    const boardsData = [
+      {
+        subject: subjects[0]._id,
+        type: 'notice',
+        title: '멘토링 시작 안내',
+        content: '자바스크립트 기초 멘토링이 시작됩니다. 매주 월요일 오후 2시에 진행됩니다.',
+        author: '홍길동',
+        createdAt: new Date('2024-03-01'),
+        week: 1
+      },
+      {
+        subject: subjects[0]._id,
+        type: 'notice',
+        title: '과제 제출 안내',
+        content: '이번 주 과제는 JavaScript 기본 문법 실습입니다. 다음 수업 전까지 제출해주세요.',
+        author: '홍길동',
+        createdAt: new Date('2024-03-05'),
+        week: 1
+      },
+      {
+        subject: subjects[0]._id,
+        type: 'notice',
+        title: '수업 자료 업로드',
+        content: '이번 주 수업 자료가 업로드되었습니다. 미리 예습해주세요.',
+        author: '홍길동',
+        createdAt: new Date('2024-03-08'),
+        week: 1
+      },
+      {
+        subject: subjects[1]._id,
+        type: 'notice',
+        title: '리액트 심화 멘토링 안내',
+        content: '리액트 심화 멘토링이 시작됩니다. 매주 수요일 오후 3시에 진행됩니다.',
+        author: '박지성',
+        createdAt: new Date('2024-03-01'),
+        week: 1
+      },
+      {
+        subject: subjects[1]._id,
+        type: 'notice',
+        title: '프로젝트 발표 일정',
+        content: '최종 프로젝트 발표는 4월 15일 오후 2시에 진행됩니다.',
+        author: '박지성',
+        createdAt: new Date('2024-03-10'),
+        week: 1
+      },
+      {
+        subject: subjects[1]._id,
+        type: 'notice',
+        title: '리액트 라이브러리 소개',
+        content: '이번 주는 Redux와 React Query에 대해 학습합니다.',
+        author: '박지성',
+        createdAt: new Date('2024-03-12'),
+        week: 1
+      },
+      {
+        subject: subjects[0]._id,
+        type: 'progress',
+        title: '1주차 학습 진도',
+        content: '자바스크립트 기본 문법과 변수, 함수에 대해 학습했습니다.',
+        author: '김철수',
+        createdAt: new Date('2024-03-04'),
+        week: 1
+      },
+      {
+        subject: subjects[0]._id,
+        type: 'materials',
+        title: '자바스크립트 기초 자료',
+        content: '자바스크립트 기본 문법과 예제 코드가 포함된 자료입니다.',
+        author: '홍길동',
+        createdAt: new Date('2024-03-02'),
+        week: 1
+      },
+      {
+        subject: subjects[0]._id,
+        type: 'qa',
+        title: '자바스크립트 질문',
+        content: '클로저와 스코프에 대해 더 자세히 설명해주세요.',
+        author: '이영희',
+        createdAt: new Date('2024-03-03'),
+        week: 1
+      }
+    ];
+
     // Insert boards with subject reference
-    const boards = await Board.insertMany(
-      sampleData.boards.map(board => ({
-        ...board,
-        subject: subjects[0]._id // 자바스크립트 기초 과목에 연결
-      }))
-    );
+    await Board.insertMany(boardsData);
     console.log('Boards seeded');
 
     console.log('Seeding completed successfully');

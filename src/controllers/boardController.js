@@ -120,8 +120,15 @@ exports.createPost = async (req, res) => {
       };
     }
 
-    // 파일 첨부 처리
-    if (req.body.attachments) {
+    // 파일 첨부 처리 (multer로 업로드된 파일)
+    if (req.files && req.files.length > 0) {
+      postData.attachments = req.files.map(file => ({
+        filename: file.originalname,
+        url: `/uploads/${file.filename}`,
+        uploadedAt: new Date(),
+        isPublic: true
+      }));
+    } else if (req.body.attachments) {
       postData.attachments = req.body.attachments;
     }
 
@@ -172,8 +179,15 @@ exports.updatePost = async (req, res) => {
       if (req.body.semester) post.grade.semester = req.body.semester;
     }
 
-    // 파일 첨부 업데이트
-    if (req.body.attachments) {
+    // 파일 첨부 업데이트 (multer로 업로드된 파일)
+    if (req.files && req.files.length > 0) {
+      post.attachments = req.files.map(file => ({
+        filename: file.originalname,
+        url: `/uploads/${file.filename}`,
+        uploadedAt: new Date(),
+        isPublic: true
+      }));
+    } else if (req.body.attachments) {
       post.attachments = req.body.attachments;
     }
 
