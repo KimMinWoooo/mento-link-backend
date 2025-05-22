@@ -25,6 +25,9 @@ exports.getCohort = async (req, res) => {
 
 // Create cohort
 exports.createCohort = async (req, res) => {
+  if (!req.user || !req.user.isAdmin) {
+    return res.status(403).json({ message: '관리자만 기수 추가가 가능합니다.' });
+  }
   const cohort = new Cohort({
     number: req.body.number,
     startDate: req.body.startDate,

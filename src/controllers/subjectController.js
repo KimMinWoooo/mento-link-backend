@@ -40,6 +40,9 @@ exports.getSubject = async (req, res) => {
 
 // Create subject
 exports.createSubject = async (req, res) => {
+  if (!req.user || !req.user.isAdmin) {
+    return res.status(403).json({ message: '관리자만 과목 추가가 가능합니다.' });
+  }
   const subject = new Subject({
     name: req.body.name,
     code: req.body.code,

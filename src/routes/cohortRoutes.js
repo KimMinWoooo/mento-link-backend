@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const cohortController = require('../controllers/cohortController');
+const authMiddleware = require('../middleware/authMiddleware');
 
 // Get all cohorts
 router.get('/', cohortController.getCohorts);
@@ -9,7 +10,7 @@ router.get('/', cohortController.getCohorts);
 router.get('/:id', cohortController.getCohort);
 
 // Create cohort
-router.post('/', cohortController.createCohort);
+router.post('/', authMiddleware, cohortController.createCohort);
 
 // Update cohort
 router.put('/:id', cohortController.updateCohort);

@@ -59,6 +59,10 @@ exports.getPost = async (req, res) => {
 // Create post
 exports.createPost = async (req, res) => {
   try {
+    // 공지사항(메인) 작성은 관리자만
+    if (req.body.type === 'notice' && req.body.isMainNotice && (!req.user || !req.user.isAdmin)) {
+      return res.status(403).json({ message: '관리자만 공지사항을 작성할 수 있습니다.' });
+    }
     // 필수 필드 검증
     if (!req.body.type) {
       return res.status(400).json({ message: 'Type is required' });
@@ -78,9 +82,9 @@ exports.createPost = async (req, res) => {
       isPublic: req.body.isPublic !== undefined ? req.body.isPublic : true
     };
 
-    // 공지사항인 경우 subject를 'main'으로 설정
+    // 공지사항인 경우 subject를 전체 공지 ObjectId로 설정
     if (req.body.type === 'notice' && req.body.isMainNotice) {
-      postData.subject = 'main';
+      postData.subject = '682edd408423789a032fe819';
     } else {
       // 일반 게시글인 경우 subject 필드 검증
       if (!req.body.subject) {
@@ -151,6 +155,10 @@ exports.updatePost = async (req, res) => {
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
+    // 권한 체크: 관리자 또는 작성자(학번)
+    if (!req.user.isAdmin && post.author !== req.user.studentId) {
+      return res.status(403).json({ message: '수정 권한이 없습니다.' });
+    }
 
     // 기본 필드 업데이트
     if (req.body.title) post.title = req.body.title;
@@ -206,7 +214,10 @@ exports.deletePost = async (req, res) => {
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
-
+    // 권한 체크: 관리자 또는 작성자(학번)
+    if (!req.user.isAdmin && post.author !== req.user.studentId) {
+      return res.status(403).json({ message: '삭제 권한이 없습니다.' });
+    }
     await post.deleteOne();
     res.json({ message: 'Post deleted' });
   } catch (error) {

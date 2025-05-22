@@ -33,7 +33,7 @@
 
         <hr/>
         <a href="/" class="MainButton">메인으로 돌아가기</a>
-
+        <button id="noticeWriteBtn" style="display:none; margin-top:10px; width:100%;">공지사항 작성</button>
 
       </div>
 
@@ -193,12 +193,11 @@
           }
           const posts = await response.json();
           const postList = document.getElementById('postList');
-          
+          const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
           if (posts.length === 0) {
             postList.innerHTML = '<div class="no-posts">게시글이 없습니다.</div>';
             return;
           }
-
           postList.innerHTML = posts.map(post => {
             let additionalContent = '';
             
@@ -242,14 +241,20 @@
               `;
             }
 
+            // 권한 체크
+            let canEdit = false;
+            if (user) {
+              if (user.isAdmin || post.author === user.studentId) canEdit = true;
+            }
+
             return `
               <div class="post" data-id="${post._id}" onclick="openViewModal('${post._id}')">
                 <div class="post-title">${post.title}</div>
                 <div class="post-meta">${post.author}</div>
                 <div class="post-meta">${new Date(post.createdAt).toLocaleDateString()}</div>
                 <div class="post-actions">
-                  <button class="edit-button" onclick="event.stopPropagation(); openEditModal('${post._id}')">수정</button>
-                  <button class="delete-button" onclick="event.stopPropagation(); confirmDelete('${post._id}')">삭제</button>
+                  ${canEdit ? `<button class='edit-button' onclick="event.stopPropagation(); openEditModal('${post._id}')">수정</button>
+                  <button class='delete-button' onclick="event.stopPropagation(); confirmDelete('${post._id}')">삭제</button>` : ''}
                 </div>
                 ${additionalContent}
               </div>
@@ -547,8 +552,46 @@
 
           // 게시판 타입별 추가 내용 표시
           const additionalContent = document.getElementById('viewAdditionalContent');
-          // 기존 내용(진행상황 등)과 합쳐서 표시
-          additionalContent.innerHTML = attachmentsHtml + additionalContent.innerHTML;
+          additionalContent.innerHTML = '';
+          // 첨부파일 먼저
+          if (attachmentsHtml) additionalContent.innerHTML += attachmentsHtml;
+
+          // 진행상황/일정/학점 등 추가 내용
+          if (postType === 'progress' && post.learningGoals) {
+            additionalContent.innerHTML += `
+              <div class="progress-goals">
+                <h3>학습 목표</h3>
+                ${post.learningGoals.map(goal => `
+                  <div class="goal-item ${goal.completed ? 'completed' : ''}">
+                    <input type="checkbox" ${goal.completed ? 'checked' : ''} disabled>
+                    <span>${goal.goal}</span>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          } else if (postType === 'schedule' && post.schedule) {
+            additionalContent.innerHTML += `
+              <div class="schedule-info">
+                <h3>일정 정보</h3>
+                <div>일시: ${new Date(post.schedule.startDate).toLocaleString()} ~ ${new Date(post.schedule.endDate).toLocaleString()}</div>
+                <div>장소: ${post.schedule.location}</div>
+                <div>참여자: ${post.schedule.participants.join(', ')}</div>
+              </div>
+            `;
+          } else if (postType === 'grade' && post.grade) {
+            const progress = (post.grade.current / post.grade.target) * 100;
+            additionalContent.innerHTML += `
+              <div class="grade-info">
+                <h3>학점 정보</h3>
+                <div>목표 학점: ${post.grade.target}</div>
+                <div>현재 학점: ${post.grade.current}</div>
+                <div>학기: ${post.grade.semester}</div>
+                <div class="grade-progress">
+                  <div class="grade-progress-bar" style="width: ${progress}%"></div>
+                </div>
+              </div>
+            `;
+          }
 
           document.getElementById('viewModal').style.display = 'block';
         } catch (error) {
@@ -576,6 +619,40 @@
           closeViewModal();
         }
       }
+
+      // 글 작성 버튼 노출 제어
+      (function() {
+        const writeBtn = document.querySelector('.write-button');
+        function updateWriteBtn() {
+          const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+          if (user) {
+            writeBtn.style.display = 'block';
+          } else {
+            writeBtn.style.display = 'none';
+          }
+        }
+        updateWriteBtn();
+        window.addEventListener('storage', updateWriteBtn);
+      })();
+
+      // 관리자만 공지사항 작성 버튼 노출
+      (function() {
+        const btn = document.getElementById('noticeWriteBtn');
+        function updateBtn() {
+          const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+          if (user && user.isAdmin) {
+            btn.style.display = 'block';
+          } else {
+            btn.style.display = 'none';
+          }
+        }
+        updateBtn();
+        window.addEventListener('storage', updateBtn);
+        btn.onclick = function() {
+          // 공지사항 작성 모달 열기(기존 글쓰기 모달 재활용)
+          openWriteModal();
+        };
+      })();
     </script>
 
   </body>

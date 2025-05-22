@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const subjectController = require('../controllers/subjectController');
+const authMiddleware = require('../middleware/authMiddleware');
 
 // Get all subjects
 router.get('/', subjectController.getSubjects);
@@ -12,7 +13,7 @@ router.get('/cohort/:cohortId', subjectController.getSubjectsByCohort);
 router.get('/:id', subjectController.getSubject);
 
 // Create subject
-router.post('/', subjectController.createSubject);
+router.post('/', authMiddleware, subjectController.createSubject);
 
 // Update subject
 router.put('/:id', subjectController.updateSubject);

@@ -29,6 +29,8 @@ app.use('/api/posts', require('./routes/postRoutes'));
 app.use('/api/cohorts', require('./routes/cohortRoutes'));
 app.use('/api/subjects', require('./routes/subjectRoutes'));
 app.use('/api/boards', require('./routes/boardRoutes'));
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
 
 // Serve HTML files
 app.get('/', (req, res) => {
