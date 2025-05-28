@@ -29,6 +29,7 @@ app.use('/api/posts', require('./routes/postRoutes'));
 app.use('/api/cohorts', require('./routes/cohortRoutes'));
 app.use('/api/subjects', require('./routes/subjectRoutes'));
 app.use('/api/boards', require('./routes/boardRoutes'));
+app.use('/api/comments', require('./routes/commentRoutes'));
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 
@@ -43,6 +44,10 @@ app.get('/mentoring', (req, res) => {
 
 app.get('/subjects', (req, res) => {
   res.sendFile(path.join(__dirname, '../mento-link-front-html/SubjectListPage.html'));
+});
+
+app.get('/board-detail', (req, res) => {
+  res.sendFile(path.join(__dirname, '../mento-link-front-html/BoardDetailPage.html'));
 });
 
 // Error handling middleware

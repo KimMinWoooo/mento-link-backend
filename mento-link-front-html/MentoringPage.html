@@ -171,6 +171,18 @@
         <div class="post-meta" id="viewMeta"></div>
         <div class="post-content" id="viewContent"></div>
         <div id="viewAdditionalContent"></div>
+        
+        <!-- 댓글 섹션 추가 -->
+        <div class="comments-section">
+          <h3>댓글</h3>
+          <div class="comment-form">
+            <textarea id="commentContent" placeholder="댓글을 작성하세요..."></textarea>
+            <button id="submitComment">댓글 작성</button>
+          </div>
+          <div id="commentsList" class="comments-list">
+            <!-- 댓글들이 여기에 동적으로 추가됩니다 -->
+          </div>
+        </div>
       </div>
     </div>
 
@@ -183,6 +195,9 @@
       const cohortId = urlParams.get('cohortId');
       const subjectId = urlParams.get('subjectId');
       const postType = urlParams.get('type') || 'notice';
+
+      // 전역 변수로 currentPostId 선언
+      let currentPostId = null;
 
       // 게시물 목록 가져오기
       async function getPosts() {
@@ -373,8 +388,6 @@
         });
       });
 
-      let currentPostId = null;
-
       // 수정 모달 열기
       async function openEditModal(postId) {
         try {
@@ -519,6 +532,7 @@
 
       // 게시글 보기 모달 열기
       async function openViewModal(postId) {
+        currentPostId = postId; // currentPostId 설정
         try {
           const response = await fetch(`${API_BASE_URL}/boards/${postId}`);
           if (!response.ok) {
@@ -553,7 +567,6 @@
           // 게시판 타입별 추가 내용 표시
           const additionalContent = document.getElementById('viewAdditionalContent');
           additionalContent.innerHTML = '';
-          // 첨부파일 먼저
           if (attachmentsHtml) additionalContent.innerHTML += attachmentsHtml;
 
           // 진행상황/일정/학점 등 추가 내용
@@ -593,6 +606,9 @@
             `;
           }
 
+          // 댓글 목록 가져오기
+          fetchComments(postId);
+
           document.getElementById('viewModal').style.display = 'block';
         } catch (error) {
           console.error('Error fetching post:', error);
@@ -600,9 +616,150 @@
         }
       }
 
+      // 댓글 목록 가져오기
+      async function fetchComments(postId) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/comments/board/${postId}`);
+          if (!response.ok) throw new Error('댓글을 불러올 수 없습니다.');
+          
+          const comments = await response.json();
+          displayComments(comments);
+        } catch (error) {
+          console.error('Error fetching comments:', error);
+          document.getElementById('commentsList').innerHTML = '<p>댓글을 불러오는데 실패했습니다.</p>';
+        }
+      }
+
+      // 댓글 표시
+      function displayComments(comments) {
+        const commentsList = document.getElementById('commentsList');
+        if (!comments || comments.length === 0) {
+          commentsList.innerHTML = '<p>아직 댓글이 없습니다.</p>';
+          return;
+        }
+
+        commentsList.innerHTML = comments.map(comment => `
+          <div class="comment">
+            <div class="comment-header">
+              <span>${comment.author}</span>
+              <span>${new Date(comment.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div class="comment-content">${comment.content}</div>
+            <div class="comment-actions">
+              <button onclick="editComment('${comment._id}')">수정</button>
+              <button onclick="deleteComment('${comment._id}')">삭제</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // 댓글 작성
+      document.getElementById('submitComment').addEventListener('click', async () => {
+        const content = document.getElementById('commentContent').value.trim();
+        if (!content) {
+          alert('댓글 내용을 입력하세요.');
+          return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('로그인이 필요합니다.');
+          return;
+        }
+
+        try {
+          const user = JSON.parse(localStorage.getItem('user'));
+          if (!user) {
+            alert('사용자 정보를 찾을 수 없습니다.');
+            return;
+          }
+
+          const response = await fetch(`${API_BASE_URL}/comments/board/${currentPostId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              content,
+              author: user.name || user.studentId // name이 없으면 studentId 사용
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || '댓글 작성에 실패했습니다.');
+          }
+
+          document.getElementById('commentContent').value = '';
+          fetchComments(currentPostId);
+        } catch (error) {
+          console.error('Error submitting comment:', error);
+          alert(error.message || '댓글 작성에 실패했습니다.');
+        }
+      });
+
+      // 댓글 수정
+      async function editComment(commentId) {
+        const content = prompt('수정할 내용을 입력하세요:');
+        if (!content) return;
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('로그인이 필요합니다.');
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ content })
+          });
+
+          if (!response.ok) throw new Error('댓글 수정에 실패했습니다.');
+
+          fetchComments(currentPostId);
+        } catch (error) {
+          console.error('Error editing comment:', error);
+          alert('댓글 수정에 실패했습니다.');
+        }
+      }
+
+      // 댓글 삭제
+      async function deleteComment(commentId) {
+        if (!confirm('댓글을 삭제하시겠습니까?')) return;
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('로그인이 필요합니다.');
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (!response.ok) throw new Error('댓글 삭제에 실패했습니다.');
+
+          fetchComments(currentPostId);
+        } catch (error) {
+          console.error('Error deleting comment:', error);
+          alert('댓글 삭제에 실패했습니다.');
+        }
+      }
+
       // 게시글 보기 모달 닫기
       function closeViewModal() {
         document.getElementById('viewModal').style.display = 'none';
+        currentPostId = null; // 모달 닫을 때 currentPostId 초기화
       }
 
       // 모달 외부 클릭 시 닫기 수정
