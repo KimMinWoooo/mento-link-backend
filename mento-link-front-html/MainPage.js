@@ -61,6 +61,8 @@ async function loadMainNotices() {
             </li>
         `).join('');
         bindNoticeClickEvents(notices);
+        // 공지 전체보기(모달)용 데이터도 저장
+        window._mainNotices = notices;
     } catch (e) {
         noticeListElement.innerHTML = "<li>공지사항을 불러오는 중 오류 발생</li>";
     }
@@ -235,7 +237,7 @@ document.getElementById('lang-zh').addEventListener('click', () => setLanguage('
                 authDiv.style.marginLeft = '10px';
                 loginBtn.parentNode.appendChild(authDiv);
             }
-            authDiv.innerHTML = `${user.name}님 <button id="logoutBtn">로그아웃</button>`;
+            authDiv.innerHTML = `${user.name}님 <button id="logoutBtn" class="logoutBtn">로그아웃</button>`;
             document.getElementById('logoutBtn').onclick = function() {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
@@ -264,6 +266,7 @@ document.getElementById('lang-zh').addEventListener('click', () => setLanguage('
     document.getElementById('cohortForm').onsubmit = async function(e) {
         e.preventDefault();
         const token = localStorage.getItem('token');
+        console.log('token for cohortForm:', token);
         const data = {
             number: document.getElementById('cohortNumber').value,
             startDate: document.getElementById('cohortStart').value,
@@ -307,6 +310,7 @@ document.getElementById('lang-zh').addEventListener('click', () => setLanguage('
     document.getElementById('subjectForm').onsubmit = async function(e) {
         e.preventDefault();
         const token = localStorage.getItem('token');
+        console.log('token for subjectForm:', token);
         const data = {
             name: document.getElementById('subjectName').value,
             code: document.getElementById('subjectCode').value,
@@ -339,6 +343,7 @@ document.getElementById('lang-zh').addEventListener('click', () => setLanguage('
         mainNoticeForm.onsubmit = async function(e) {
             e.preventDefault();
             const token = localStorage.getItem('token');
+            console.log('token for mainNoticeForm:', token);
             const data = new FormData();
             data.append('type', 'notice');
             data.append('isMainNotice', 'true');
@@ -364,4 +369,61 @@ document.getElementById('lang-zh').addEventListener('click', () => setLanguage('
         };
     }
 })();
+
+// 공지 모달 닫기(x) 버튼 이벤트 추가
+const noticeModal = document.getElementById('noticeModal');
+const closeNoticeBtn = document.querySelector('.close-detail');
+if (closeNoticeBtn) {
+    closeNoticeBtn.addEventListener('click', function() {
+        noticeModal.style.display = 'none';
+    });
+}
+
+// 공지 전체보기(모달) 목록 렌더링 및 이벤트
+function showNoticeListModal() {
+    const modal = document.getElementById('noticeListModal');
+    const list = modal.querySelector('.modal-list');
+    const notices = window._mainNotices || [];
+    if (notices.length === 0) {
+        list.innerHTML = '<li>공지사항이 없습니다.</li>';
+    } else {
+        list.innerHTML = notices.map(notice => `
+            <li><a href="#" class="open-notice" data-id="${notice._id}">${notice.title}</a><span class="date">${new Date(notice.createdAt).toLocaleDateString()}</span></li>
+        `).join('');
+    }
+    // 목록 내 공지 클릭 시 상세 모달 오픈
+    list.querySelectorAll('.open-notice').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const id = this.dataset.id;
+            const notice = notices.find(n => n._id === id);
+            if (notice) {
+                const modalTitle = document.querySelector(".modal-title");
+                const modalBody = document.querySelector(".modal-body");
+                modalTitle.textContent = notice.title;
+                modalBody.textContent = notice.content;
+                document.getElementById("noticeModal").style.display = "flex";
+                modal.style.display = 'none'; // 목록 모달 닫기
+            }
+        });
+    });
+    modal.style.display = 'flex';
+}
+
+// 전체보기(공지 목록) 버튼 이벤트
+const viewMoreBtn = document.querySelector('.ViewMore a');
+if (viewMoreBtn) {
+    viewMoreBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        showNoticeListModal();
+    });
+}
+// 공지 목록 모달 닫기(x) 버튼
+const closeNoticeListBtn = document.querySelector('.close-list');
+const noticeListModal = document.getElementById('noticeListModal');
+if (closeNoticeListBtn) {
+    closeNoticeListBtn.addEventListener('click', function() {
+        noticeListModal.style.display = 'none';
+    });
+}
 

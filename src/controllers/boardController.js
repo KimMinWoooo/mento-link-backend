@@ -156,7 +156,7 @@ exports.updatePost = async (req, res) => {
       return res.status(404).json({ message: 'Post not found' });
     }
     // 권한 체크: 관리자 또는 작성자(학번)
-    if (!req.user.isAdmin && post.author !== req.user.studentId) {
+    if (!req.user.isAdmin && String(post.author) !== String(req.user.studentId)) {
       return res.status(403).json({ message: '수정 권한이 없습니다.' });
     }
 
@@ -214,8 +214,11 @@ exports.deletePost = async (req, res) => {
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
+    // 진단용 로그 추가
+    console.log('post.author:', post.author, 'req.user.studentId:', req.user.studentId, 'isAdmin:', req.user.isAdmin);
+
     // 권한 체크: 관리자 또는 작성자(학번)
-    if (!req.user.isAdmin && post.author !== req.user.studentId) {
+    if (!req.user.isAdmin && String(post.author) !== String(req.user.studentId)) {
       return res.status(403).json({ message: '삭제 권한이 없습니다.' });
     }
     await post.deleteOne();
@@ -223,4 +226,4 @@ exports.deletePost = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}; 
+};

@@ -49,6 +49,52 @@ function displayBoard(board) {
     boardAuthor.textContent = `작성자: ${board.author}`;
     boardDate.textContent = `작성일: ${new Date(board.createdAt).toLocaleDateString()}`;
     boardContent.textContent = board.content;
+
+    // 수정/삭제 버튼 동적 추가
+    const boardHeader = document.querySelector('.board-header');
+    let btnBox = document.getElementById('boardActionBtns');
+    if (btnBox) btnBox.remove(); // 기존 버튼 박스 제거(중복 방지)
+    btnBox = document.createElement('div');
+    btnBox.id = 'boardActionBtns';
+    btnBox.style.marginTop = '10px';
+
+    const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+    if (user && (user.isAdmin || user.studentId === board.author)) {
+        // 수정 버튼
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '수정';
+        editBtn.style.marginRight = '8px';
+        editBtn.onclick = function() {
+            // TODO: 수정 모달/페이지로 이동 또는 기존 함수 호출
+            alert('수정 기능은 아직 구현되지 않았습니다.');
+        };
+        // 삭제 버튼
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '삭제';
+        deleteBtn.onclick = async function() {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+            const token = localStorage.getItem('token');
+            if (!token) return alert('로그인이 필요합니다.');
+            try {
+                const res = await fetch(`/api/boards/${boardId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    alert('삭제되었습니다.');
+                    window.location.href = '/mentoring';
+                } else {
+                    const result = await res.json();
+                    alert(result.message || '삭제 실패');
+                }
+            } catch (e) {
+                alert('삭제 중 오류 발생');
+            }
+        };
+        btnBox.appendChild(editBtn);
+        btnBox.appendChild(deleteBtn);
+        boardHeader.appendChild(btnBox);
+    }
 }
 
 // 댓글 목록 가져오기

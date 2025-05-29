@@ -30,9 +30,9 @@
       height: 50px;
   }
 
-  .title h5{
-      /* margin-top: 30px; */
-  }
+  /* .title h5{
+      margin-top: 30px;
+  } */
   
 
 /* 2단 */
@@ -92,7 +92,7 @@
       margin-right: 10%;
       margin-top: 20px;
       z-index: 2;
-      width: 320px;
+      width: 420px;
       height: 80%;
       border-radius: 10px;
   }
@@ -238,15 +238,15 @@
 
   /* 큰 화면에서도 중앙 정렬 */
   .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.4);
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
   }
 
   .modal-title {
@@ -380,3 +380,588 @@
       font-size: 0.9em;
       margin-top: 5px;
   }
+
+  /* 로그인 버튼, 모달 */
+
+  #loginBtn {
+    width: 60px;
+    height: 30px;
+    background: #64ccc9;
+    border-radius: 5px;
+    border: none;
+    color: white;
+
+  }
+
+  #loginBtn:hover {
+    background: #58bebb;
+  }
+
+  #loginModal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; 
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;  /* margin 대신 padding 사용 */
+  /* margin: 20px;  <-- 제거 */
+  }
+
+  #loginModal .modal-wrapper{
+      background: white;
+      border-left: 20px solid #d1d1d1;
+      border-top: 20px solid #64ccc9;  
+      border-bottom: 20px solid #64ccc9;  
+      border-right: 20px solid #64ccc9;
+      border-style:solid;
+      padding: 30px;
+  }
+
+  #loginModal .modal-content {
+    background: #ffffff;
+    padding: 40px 50px;
+    width: 500px;
+    height: 500px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  }
+
+  #loginModal h2 {
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #000000;
+    text-align: left;
+    font-size: 1.8rem;
+  }
+
+  #loginModal form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #loginModal .form-group {
+    margin-bottom: 18px;
+  }
+
+  #loginModal label {
+    display: block;
+    color: #000;
+    font-size: 12pt;
+    font-weight: normal;
+    margin-bottom: 8px;
+  }
+
+  #loginModal input[type="text"],
+  #loginModal input[type="password"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  #loginModal input[type="text"]:focus,
+  #loginModal input[type="password"]:focus {
+    border-color: #008aae;
+    outline: none;
+  }
+
+  #loginModal button[type="submit"] {
+    margin-top: 10px;
+    background-color: #008aae;
+    color: white;
+    border: none;
+    padding: 14px 0;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+
+  #loginModal button[type="submit"]:hover {
+    background-color: #00708b;
+  }
+
+  /* 닫기 버튼 스타일 개선 */
+  #loginModal .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 26px;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  #loginModal .close-btn:hover {
+    color: #008aae;
+  }
+
+
+/*회원가입 버튼, 모달*/
+
+  #registerBtn {
+    width: 70px;
+    height: 30px;
+    background: #64ccc9;
+    border-radius: 5px;
+    border: none;
+    color: white;
+
+  }
+
+  #registerBtn:hover {
+    background: #58bebb;
+  }
+
+/* 모달 배경 */
+#registerModal {
+  display: none; /* 기본 숨김 */
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* 모달 콘텐츠 */
+#registerModal .modal-content {
+  background: #fff;
+  padding: 30px 40px;
+  width: 600px;
+  max-width: 90%;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* 닫기 버튼 */
+#registerModal .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 26px;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.3s;
+}
+#registerModal .close-btn:hover {
+  color: #008aae;
+}
+
+/* 제목 */
+#registerModal h2 {
+  margin-bottom: 25px;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #333;
+  text-align: left;
+}
+
+#registerModal hr {
+  border: 0;
+  background: #64ccc9;
+  height: 3px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+/* 폼 */
+#registerModal form {
+  display: flex;
+  gap: 30px; /* 좌우 간격 */
+  flex-wrap: wrap;
+}
+
+/* 왼쪽 컬럼 */
+#registerModal form .left-column,
+#registerModal form .right-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* 각 컬럼 똑같은 너비 */
+}
+
+/* 각 폼 그룹 마진 */
+#registerModal .form-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* 라벨 */
+#registerModal label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #444;
+  font-size: 1rem;
+}
+
+/* 입력창 */
+#registerModal input[type="text"],
+#registerModal input[type="password"],
+#registerModal input[type="email"] {
+  padding: 12px 14px;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+#registerModal input[type="text"]:focus,
+#registerModal input[type="password"]:focus,
+#registerModal input[type="email"]:focus {
+  border-color: #008aae;
+  outline: none;
+}
+
+/* 제출 버튼 */
+#registerModal form button[type="submit"] {
+  flex-basis: 100%; /* 버튼이 전체 폭 차지 */
+  margin-top: 20px;
+  padding: 14px 0;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  background-color: #008aae;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+#registerModal form button[type="submit"]:hover {
+  background-color: #00708b;
+}
+
+/*언어 변환 버튼*/
+#lang-ko {
+  width: 50px;
+  height: 30px;
+  background: #64ccc9;
+  border-radius: 5px;
+  border: none;
+  color: white;
+}
+
+#lang-ko:hover {
+  background: #58bebb;
+}
+
+#lang-zh {
+  width: 50px;
+  height: 30px;
+  background: #64ccc9;
+  border-radius: 5px;
+  border: none;
+  color: white;
+}
+
+#lang-zh:hover {
+  background: #58bebb;
+}
+
+/*기수추가*/
+
+#addCohortBtn, #addSubjectBtn{
+  width: 70px;
+  height: 30px;
+  background: #64ccc9;
+  border-radius: 5px;
+  border: none;
+  color: white;
+}
+
+#addCohortBtn, #addSubjectBtn:hover {
+  background: #58bebb;
+}
+
+/* 모달 배경 */
+#cohortModal, #subjectModal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* 모달 콘텐츠 */
+#cohortModal .modal-content, #subjectModal .modal-content  {
+  background: #fff;
+  padding: 30px 40px;
+  width: 600px;
+  max-width: 90%;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* 닫기 버튼 */
+#cohortModal .close-btn, #subjectModal .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 26px;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.3s;
+}
+#cohortModal .close-btn:hover {
+  color: #008aae;
+}
+#subjectModal .close-btn:hover {
+  color: #008aae;
+}
+
+/* 제목 */
+#cohortModal h2, #subjectModal h2 {
+  margin-bottom: 25px;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #333;
+  text-align: left;
+}
+
+#cohortModal hr, #subjectModal hr {
+  border: 0;
+  background: #64ccc9;
+  height: 3px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+/* 폼 */
+#cohortModal form, #subjectModal form  {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+/* 왼쪽/오른쪽 컬럼 */
+#cohortModal .left-column,
+#cohortModal .right-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+#subjectModal .left-column,
+#subjectModal .right-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* 각 폼 그룹 */
+#cohortModal .form-group, #subjectModal .form-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+#cohortModal label, #subjectModal label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #444;
+  font-size: 1rem;
+}
+
+#cohortModal input[type="text"],
+#cohortModal input[type="number"],
+#cohortModal input[type="date"] {
+  padding: 12px 14px;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+#cohortModal input:focus {
+  border-color: #008aae;
+  outline: none;
+}
+
+#subjectModal input,
+#subjectModal select {
+  padding: 12px 14px;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+#subjectModal input:focus,
+#subjectModal select:focus {
+  border-color: #008aae;
+  outline: none;
+}
+
+/* 제출 버튼 */
+#cohortModal form button[type="submit"] {
+  flex-basis: 100%;
+  margin-top: 20px;
+  padding: 14px 0;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  background-color: #008aae;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+#cohortModal form button[type="submit"]:hover {
+  background-color: #00708b;
+}
+
+
+#subjectModal form button[type="submit"] {
+  flex-basis: 100%;
+  margin-top: 20px;
+  padding: 14px 0;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  background-color: #008aae;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+#subjectModal form button[type="submit"]:hover {
+  background-color: #00708b;
+}
+
+.logoutBtn{
+    width: 60px;
+    height: 30px;
+    background: #64ccc9;
+    border-radius: 5px;
+    border: none;
+    color: white;
+}
+
+#mainNoticeWriteBtn {
+  width: 120px;
+  height: 32px;
+  background: #64ccc9;
+  border-radius: 5px;
+  border: none;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  margin-right: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#mainNoticeWriteBtn:hover {
+  background: #58bebb;
+}
+
+/* 공지 전체보기 모달 UX 개선 */
+#noticeListModal .modal-content {
+  background: #fff;
+  padding: 32px 32px 24px 32px;
+  width: 480px;
+  max-width: 95vw;
+  max-height: 80vh;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+#noticeListModal .modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #008aae;
+  border-bottom: 1.5px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+#noticeListModal .modal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 340px;
+  overflow-y: auto;
+  border-radius: 8px;
+  background: #f8fafd;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+#noticeListModal .modal-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e6e6e6;
+  transition: background 0.15s;
+}
+#noticeListModal .modal-list li:last-child {
+  border-bottom: none;
+}
+#noticeListModal .modal-list li:hover {
+  background: #eaf7fa;
+}
+#noticeListModal .modal-list a {
+  color: #222;
+  font-weight: 500;
+  text-decoration: none;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#noticeListModal .modal-list .date {
+  color: #888;
+  font-size: 0.98em;
+  margin-left: 16px;
+  flex-shrink: 0;
+}
+#noticeListModal .close-btn {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  font-size: 26px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+#noticeListModal .close-btn:hover {
+  color: #008aae;
+}
+@media (max-width: 600px) {
+  #noticeListModal .modal-content {
+    width: 98vw;
+    padding: 16px 4vw 12px 4vw;
+  }
+  #noticeListModal .modal-title {
+    font-size: 1.1rem;
+    padding-bottom: 6px;
+  }
+  #noticeListModal .modal-list li {
+    padding: 10px 8px;
+    font-size: 0.98em;
+  }
+}

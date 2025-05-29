@@ -35,7 +35,7 @@ exports.login = async (req, res) => {
     if (!valid) {
       return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
     }
-    const token = jwt.sign({ userId: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user._id, isAdmin: user.isAdmin, studentId: user.studentId }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, user: { name: user.name, studentId: user.studentId, isAdmin: user.isAdmin } });
   } catch (e) {
     res.status(500).json({ message: '로그인 실패', error: e.message });

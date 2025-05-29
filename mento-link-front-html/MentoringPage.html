@@ -450,10 +450,12 @@
       // 게시글 삭제
       async function deletePost() {
         if (!currentPostId) return;
-        
+        const token = localStorage.getItem('token');
+        console.log('token for delete:', token);
         try {
           const response = await fetch(`${API_BASE_URL}/boards/${currentPostId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
           });
 
           if (!response.ok) {
@@ -478,7 +480,9 @@
         formData.append('subject', subjectId);
         formData.append('title', document.getElementById('title').value);
         formData.append('content', document.getElementById('content').value);
-        formData.append('author', '홍길동'); // TODO: 실제 사용자 정보로 대체
+        // author를 실제 로그인 사용자로
+        const user = JSON.parse(localStorage.getItem('user'));
+        formData.append('author', user ? user.studentId : '');
         formData.append('isPublic', document.getElementById('isPublic').checked);
 
         // 게시판 타입별 추가 필드 처리
@@ -507,12 +511,17 @@
           });
         }
 
+        // 토큰 추가 및 로그
+        const token = localStorage.getItem('token');
+        console.log('token for post:', token);
+
         try {
           const url = currentPostId 
             ? `${API_BASE_URL}/boards/${currentPostId}`
             : `${API_BASE_URL}/boards`;
           const response = await fetch(url, {
             method: currentPostId ? 'PUT' : 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
             body: formData
           });
 

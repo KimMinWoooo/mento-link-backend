@@ -42,16 +42,6 @@
                 <h2 data-i18n="notice">공지사항</h2>
                 <button id="mainNoticeWriteBtn" style="display:none; float:right; margin-bottom:5px;">공지사항 작성</button>
                 <ul class="notice-list">
-
-                    <li>
-                        <a href="#">공지사항 1</a>
-                        <span class="date">2025-05-01</span>
-                    </li>
-                    
-                    <li>
-                        <a href="#">공지사항 2</a>
-                        <span class="date">2025-04-28</span>
-                    </li>
                 </ul>
 
                 <div class="ViewMore">
@@ -105,52 +95,64 @@
         <!-- 로그인 모달 -->
         <div id="loginModal" class="modal" style="display:none;">
             <div class="modal-content">
-                <span class="close-btn" id="closeLogin">&times;</span>
-                <h2>로그인</h2>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="loginStudentId">학번</label>
-                        <input type="text" id="loginStudentId" name="studentId" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="loginPassword">비밀번호</label>
-                        <input type="password" id="loginPassword" name="password" required>
-                    </div>
-                    <button type="submit">로그인</button>
-                </form>
+                <div class = "modal-wrapper">
+                    <span class="close-btn" id="closeLogin">&times;</span>
+                    <h2>로그인</h2>
+                    <form id="loginForm">
+
+                        <div class="form-group">
+                            <label for="loginStudentId">학번</label>
+                            <input type="text" id="loginStudentId" name="studentId" required placeholder="Student Id">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loginPassword">비밀번호</label>
+                            <input type="password" id="loginPassword" name="password" required placeholder="Password">
+                        </div>
+                        <button type="submit">로그인</button>
+                    
+                    </form>
+                </div>
             </div>
         </div>
+
         <!-- 회원가입 모달 -->
         <div id="registerModal" class="modal" style="display:none;">
             <div class="modal-content">
                 <span class="close-btn" id="closeRegister">&times;</span>
                 <h2>회원가입</h2>
+                <hr/>
                 <form id="registerForm">
+                <div class="left-column">
                     <div class="form-group">
-                        <label for="regStudentId">학번</label>
-                        <input type="text" id="regStudentId" name="studentId" required>
+                    <label for="regStudentId">학번</label>
+                    <input type="text" id="regStudentId" name="studentId" required placeholder="Student Id">
                     </div>
                     <div class="form-group">
-                        <label for="regPassword">비밀번호</label>
-                        <input type="password" id="regPassword" name="password" required>
+                    <label for="regName">이름</label>
+                    <input type="text" id="regName" name="name" required placeholder="Name">
                     </div>
                     <div class="form-group">
-                        <label for="regName">이름</label>
-                        <input type="text" id="regName" name="name" required>
+                    <label for="regPhone">전화번호</label>
+                    <input type="text" id="regPhone" name="phone" required placeholder="Phone Number">
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <div class="form-group">
+                    <label for="regPassword">비밀번호</label>
+                    <input type="password" id="regPassword" name="password" required placeholder="Password">
                     </div>
                     <div class="form-group">
-                        <label for="regDepartment">학과</label>
-                        <input type="text" id="regDepartment" name="department" required>
+                    <label for="regDepartment">학과</label>
+                    <input type="text" id="regDepartment" name="department" required placeholder="Department">
                     </div>
                     <div class="form-group">
-                        <label for="regEmail">이메일</label>
-                        <input type="email" id="regEmail" name="email" required>
+                    <label for="regEmail">이메일</label>
+                    <input type="email" id="regEmail" name="email" required placeholder="Email">
                     </div>
-                    <div class="form-group">
-                        <label for="regPhone">전화번호</label>
-                        <input type="text" id="regPhone" name="phone" required>
-                    </div>
-                    <button type="submit">회원가입</button>
+                </div>
+                <button type="submit">회원가입</button>
                 </form>
             </div>
         </div>
@@ -163,11 +165,11 @@
                 <form id="mainNoticeForm">
                     <div class="form-group">
                         <label for="mainNoticeTitle">제목</label>
-                        <input type="text" id="mainNoticeTitle" name="title" required>
+                        <input type="text" id="mainNoticeTitle" name="title" required placeholder="Title">
                     </div>
                     <div class="form-group">
                         <label for="mainNoticeContent">내용</label>
-                        <textarea id="mainNoticeContent" name="content" required></textarea>
+                        <textarea id="mainNoticeContent" name="content" required placeholder="Content"></textarea>
                     </div>
                     <button type="submit">등록</button>
                 </form>
@@ -179,62 +181,77 @@
             <div class="modal-content">
                 <span class="close-btn" id="closeCohortModal">&times;</span>
                 <h2>기수 추가</h2>
-                <form id="cohortForm">
-                    <div class="form-group">
-                        <label for="cohortNumber">기수 번호</label>
-                        <input type="number" id="cohortNumber" name="number" required>
+                <hr/>
+                <form id="cohortForm" class="two-column-form">
+                    <div class="form-column left">
+                        <div class="form-group">
+                            <label for="cohortNumber">기수 번호</label>
+                            <input type="number" id="cohortNumber" name="number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cohortStart">시작일</label>
+                            <input type="date" id="cohortStart" name="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cohortEnd">종료일</label>
+                            <input type="date" id="cohortEnd" name="endDate" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="cohortStart">시작일</label>
-                        <input type="date" id="cohortStart" name="startDate" required>
+                    <div class="form-column right">
+                        <div class="form-group">
+                            <label for="cohortLms">LMS URL</label>
+                            <input type="text" id="cohortLms" name="lmsUrl" required placeholder="Url">
+                        </div>
+                        <div class="form-group">
+                            <label for="cohortFun">Fun 시스템 URL</label>
+                            <input type="text" id="cohortFun" name="funSystemUrl" required placeholder="Url">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="cohortEnd">종료일</label>
-                        <input type="date" id="cohortEnd" name="endDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cohortLms">LMS URL</label>
-                        <input type="text" id="cohortLms" name="lmsUrl" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cohortFun">Fun 시스템 URL</label>
-                        <input type="text" id="cohortFun" name="funSystemUrl" required>
-                    </div>
-                    <button type="submit">추가</button>
+                    <div style="clear: both;"></div>
+                    <button type="submit" style="margin-top: 20px;">추가</button>
                 </form>
             </div>
         </div>
+
+        
         <!-- 과목 추가 모달 -->
         <div id="subjectModal" class="modal" style="display:none;">
             <div class="modal-content">
                 <span class="close-btn" id="closeSubjectModal">&times;</span>
                 <h2>과목 추가</h2>
+                <hr />
                 <form id="subjectForm">
+                <div class="left-column">
                     <div class="form-group">
-                        <label for="subjectName">과목명</label>
-                        <input type="text" id="subjectName" name="name" required>
+                    <label for="subjectName">과목명</label>
+                    <input type="text" id="subjectName" name="name" required placeholder="Subject Name">
                     </div>
                     <div class="form-group">
-                        <label for="subjectCode">과목 코드</label>
-                        <input type="text" id="subjectCode" name="code" required>
+                    <label for="subjectCode">과목 코드</label>
+                    <input type="text" id="subjectCode" name="code" required placeholder="Subject Code">
                     </div>
                     <div class="form-group">
-                        <label for="subjectCohort">기수 선택</label>
-                        <select id="subjectCohort" name="cohortId" required></select>
+                    <label for="subjectCohort">기수 선택</label>
+                    <select id="subjectCohort" name="cohortId" required></select>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <div class="form-group">
+                    <label for="mentorName">멘토 이름</label>
+                    <input type="text" id="mentorName" name="mentorName" required placeholder="Mentor Name">
                     </div>
                     <div class="form-group">
-                        <label for="mentorName">멘토 이름</label>
-                        <input type="text" id="mentorName" name="mentorName" required>
+                    <label for="mentorEmail">멘토 이메일</label>
+                    <input type="email" id="mentorEmail" name="mentorEmail" required placeholder="Mentor Email">
                     </div>
                     <div class="form-group">
-                        <label for="mentorEmail">멘토 이메일</label>
-                        <input type="email" id="mentorEmail" name="mentorEmail" required>
+                    <label for="mentorIntro">멘토 소개</label>
+                    <input type="text" id="mentorIntro" name="mentorIntro" placeholder="Mentor Introduction">
                     </div>
-                    <div class="form-group">
-                        <label for="mentorIntro">멘토 소개</label>
-                        <input type="text" id="mentorIntro" name="mentorIntro">
-                    </div>
-                    <button type="submit">추가</button>
+                </div>
+
+                <button type="submit">추가</button>
                 </form>
             </div>
         </div>

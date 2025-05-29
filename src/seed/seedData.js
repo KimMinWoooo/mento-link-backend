@@ -5,6 +5,7 @@ const Cohort = require('../models/Cohort');
 const Subject = require('../models/Subject');
 const Board = require('../models/Board');
 const User = require('../models/User');
+const Comment = require('../models/Comment');
 
 // Load environment variables
 dotenv.config();
@@ -179,13 +180,13 @@ const sampleData = {
 // Seed function
 async function seed() {
   try {
-    // Clear existing data
-    await User.deleteMany({});
-    await Cohort.deleteMany({});
-    await Subject.deleteMany({});
-    await Board.deleteMany({});
+    // 기존 데이터 삭제는 하지 않음
+    // await User.deleteMany({});
+    // await Cohort.deleteMany({});
+    // await Subject.deleteMany({});
+    // await Board.deleteMany({});
 
-    // Hash passwords and insert users
+    // Hash passwords and insert users (중복 방지용, 이미 있으면 생략)
     const hashedUsers = await Promise.all(
       sampleData.users.map(async (user) => ({
         ...user,
@@ -218,7 +219,7 @@ async function seed() {
         type: 'notice',
         title: `${subject.name} 멘토링 시작 안내`,
         content: `${subject.name} 멘토링이 시작됩니다. 매주 월요일 오후 2시에 진행됩니다.`,
-        author: subject.mentor.name,
+        author: sampleData.users.find(u => u.name === subject.mentor.name)?.studentId || subject.mentor.name,
         createdAt: new Date('2024-03-01'),
         week: 1
       });
@@ -229,7 +230,7 @@ async function seed() {
         type: 'materials',
         title: `${subject.name} 기초 자료`,
         content: `${subject.name}의 기본 개념과 예제 코드가 포함된 자료입니다.`,
-        author: subject.mentor.name,
+        author: sampleData.users.find(u => u.name === subject.mentor.name)?.studentId || subject.mentor.name,
         createdAt: new Date('2024-03-02'),
         week: 1
       });
@@ -241,7 +242,7 @@ async function seed() {
           type: 'progress',
           title: `${mentee.name}의 1주차 학습 진도`,
           content: `${subject.name}의 기본 개념을 학습했습니다.`,
-          author: mentee.name,
+          author: sampleData.users.find(u => u.name === mentee.name)?.studentId || mentee.name,
           createdAt: new Date('2024-03-04'),
           week: 1
         });
@@ -253,7 +254,7 @@ async function seed() {
         type: 'qa',
         title: `${subject.name} 관련 질문`,
         content: `${subject.name}의 핵심 개념에 대해 더 자세히 설명해주세요.`,
-        author: subject.mentees[0].name,
+        author: sampleData.users.find(u => u.name === subject.mentees[0].name)?.studentId || subject.mentees[0].name,
         createdAt: new Date('2024-03-03'),
         week: 1
       });
@@ -264,7 +265,7 @@ async function seed() {
         type: 'suggestion',
         title: `${subject.name} 수업 개선 제안`,
         content: '실습 시간을 좀 더 늘려주시면 좋겠습니다.',
-        author: subject.mentees[0].name,
+        author: sampleData.users.find(u => u.name === subject.mentees[0].name)?.studentId || subject.mentees[0].name,
         createdAt: new Date('2024-03-05'),
         week: 1
       });
@@ -275,14 +276,14 @@ async function seed() {
         type: 'schedule',
         title: `${subject.name} 멘토링 일정 조율`,
         content: '다음 주 멘토링 일정을 조율하고 싶습니다.',
-        author: subject.mentor.name,
+        author: sampleData.users.find(u => u.name === subject.mentor.name)?.studentId || subject.mentor.name,
         createdAt: new Date('2024-03-06'),
         week: 1,
         schedule: {
           startDate: new Date('2024-03-11'),
           endDate: new Date('2024-03-15'),
           location: '온라인',
-          participants: [...subject.mentees.map(m => m.name), subject.mentor.name]
+          participants: [...subject.mentees.map(m => sampleData.users.find(u => u.name === m.name)?.studentId || m.name), sampleData.users.find(u => u.name === subject.mentor.name)?.studentId || subject.mentor.name]
         }
       });
 
@@ -292,7 +293,7 @@ async function seed() {
         type: 'grade',
         title: `${subject.name} 목표 학점 설정`,
         content: '이번 학기 목표 학점을 설정하고 싶습니다.',
-        author: subject.mentees[0].name,
+        author: sampleData.users.find(u => u.name === subject.mentees[0].name)?.studentId || subject.mentees[0].name,
         createdAt: new Date('2024-03-07'),
         week: 1,
         grade: {
@@ -304,8 +305,88 @@ async function seed() {
     });
 
     // Insert boards with subject reference
-    await Board.insertMany(boardsData);
+    const createdBoards = await Board.insertMany(boardsData);
     console.log('Boards seeded');
+
+    // === DB 설계 과목 멘토링 시나리오 추가 ===
+    // 1. 데이터베이스 설계 과목 ObjectId 찾기
+    const dbSubject = await Subject.findOne({ name: '데이터베이스 설계' });
+    const mentorId = (await User.findOne({ name: '박지성' })).studentId;
+    const mentee1Id = (await User.findOne({ name: '김철수' })).studentId;
+    const mentee2Id = (await User.findOne({ name: '이영희' })).studentId;
+
+    // 2. 게시글 여러 개 추가
+    const dbBoards = [
+      {
+        subject: dbSubject._id,
+        type: 'progress',
+        title: '1주차 ERD 설계 완료',
+        content: 'ERD 설계와 정규화 1단계를 완료했습니다.',
+        author: mentee1Id,
+        createdAt: new Date('2024-03-10')
+      },
+      {
+        subject: dbSubject._id,
+        type: 'qa',
+        title: '정규화 2단계 질문',
+        content: '2단계 정규화에서 주의할 점이 궁금합니다.',
+        author: mentee2Id,
+        createdAt: new Date('2024-03-11')
+      },
+      {
+        subject: dbSubject._id,
+        type: 'materials',
+        title: 'ERD 예시 자료',
+        content: '실제 프로젝트에서 사용한 ERD 예시를 공유합니다.',
+        author: mentorId,
+        createdAt: new Date('2024-03-12')
+      },
+      {
+        subject: dbSubject._id,
+        type: 'schedule',
+        title: '3월 멘토링 일정 조율',
+        content: '3월 15일 오후 2시에 멘토링 진행 어떠세요?',
+        author: mentorId,
+        createdAt: new Date('2024-03-13'),
+        schedule: {
+          startDate: new Date('2024-03-15T14:00:00'),
+          endDate: new Date('2024-03-15T16:00:00'),
+          location: 'ZOOM',
+          participants: [mentorId, mentee1Id, mentee2Id]
+        }
+      }
+    ];
+    const createdDbBoards = await Board.insertMany(dbBoards);
+
+    // 3. 각 게시글에 실제 멘토링 대화처럼 댓글 추가
+    const dbComments = [
+      {
+        board: createdBoards[0]._id,
+        author: mentorId,
+        content: 'ERD 설계 잘 했어요! 2단계 정규화도 도전해봅시다.',
+        createdAt: new Date('2024-03-10T18:00:00')
+      },
+      {
+        board: createdBoards[1]._id,
+        author: mentorId,
+        content: '2단계 정규화에서는 부분 함수 종속을 제거하는 것이 중요합니다.',
+        createdAt: new Date('2024-03-11T20:00:00')
+      },
+      {
+        board: createdBoards[3]._id,
+        author: mentee1Id,
+        content: '네, 3월 15일 오후 2시 가능합니다!',
+        createdAt: new Date('2024-03-13T10:00:00')
+      },
+      {
+        board: createdBoards[3]._id,
+        author: mentee2Id,
+        content: '저도 참석 가능합니다!',
+        createdAt: new Date('2024-03-13T10:05:00')
+      }
+    ];
+    await Comment.insertMany(dbComments);
+    console.log('DB 설계 과목 게시글/댓글 추가 완료');
 
     console.log('Seeding completed successfully');
   } catch (error) {
