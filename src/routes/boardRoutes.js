@@ -17,6 +17,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// activityPhoto(1개), files(최대 10개)만 허용
+const uploadFields = multer({ storage: storage }).fields([
+  { name: 'activityPhoto', maxCount: 1 },
+  { name: 'files', maxCount: 10 }
+]);
+
 // Get all posts by subject
 router.get('/subject/:subjectId', boardController.getPosts);
 
@@ -26,11 +32,11 @@ router.get('/subject/:subjectId/:type', boardController.getPosts);
 // Get single post
 router.get('/:id', boardController.getPost);
 
-// Create post (여러 파일 첨부)
-router.post('/', authMiddleware, upload.array('files', 10), boardController.createPost);
+// Create post (activityPhoto 또는 files만 허용)
+router.post('/', authMiddleware, uploadFields, boardController.createPost);
 
-// Update post (여러 파일 첨부)
-router.put('/:id', authMiddleware, upload.array('files', 10), boardController.updatePost);
+// Update post (activityPhoto 또는 files만 허용)
+router.put('/:id', authMiddleware, uploadFields, boardController.updatePost);
 
 // Delete post
 router.delete('/:id', authMiddleware, boardController.deletePost);

@@ -95,14 +95,21 @@ exports.createPost = async (req, res) => {
 
     // 게시판 타입별 추가 필드 처리
     if (req.body.type === 'progress') {
-      if (!req.body.week) {
-        return res.status(400).json({ message: 'Week is required for progress posts' });
+      postData.teamNumber = req.body.teamNumber;
+      postData.session = req.body.session;
+      postData.tutorName = req.body.tutorName;
+      postData.dateTime = req.body.dateTime;
+      postData.attendees = req.body.attendees ? req.body.attendees.split(',').map(a => a.trim()) : [];
+      postData.learningContent = req.body.learningContent;
+      postData.tutorProgress = req.body.tutorProgress;
+      // 활동사진 파일 업로드
+      if (req.file) {
+        postData.activityPhoto = {
+          filename: req.file.originalname,
+          url: `/uploads/${req.file.filename}`,
+          uploadedAt: new Date()
+        };
       }
-      postData.week = req.body.week;
-      postData.learningGoals = req.body.goals ? req.body.goals.map(goal => ({
-        goal,
-        completed: false
-      })) : [];
     } else if (req.body.type === 'schedule') {
       if (!req.body.startDate || !req.body.endDate) {
         return res.status(400).json({ message: 'Start date and end date are required for schedule posts' });
@@ -125,8 +132,8 @@ exports.createPost = async (req, res) => {
     }
 
     // 파일 첨부 처리 (multer로 업로드된 파일)
-    if (req.files && req.files.length > 0) {
-      postData.attachments = req.files.map(file => ({
+    if (req.files && req.files.files && req.files.files.length > 0) {
+      postData.attachments = req.files.files.map(file => ({
         filename: file.originalname,
         url: `/uploads/${file.filename}`,
         uploadedAt: new Date(),
@@ -167,12 +174,20 @@ exports.updatePost = async (req, res) => {
 
     // 게시판 타입별 필드 업데이트
     if (post.type === 'progress') {
-      if (req.body.week) post.week = req.body.week;
-      if (req.body.goals) {
-        post.learningGoals = req.body.goals.map(goal => ({
-          goal,
-          completed: false
-        }));
+      if (req.body.teamNumber) post.teamNumber = req.body.teamNumber;
+      if (req.body.session) post.session = req.body.session;
+      if (req.body.tutorName) post.tutorName = req.body.tutorName;
+      if (req.body.dateTime) post.dateTime = req.body.dateTime;
+      if (req.body.attendees) post.attendees = req.body.attendees.split(',').map(a => a.trim());
+      if (req.body.learningContent) post.learningContent = req.body.learningContent;
+      if (req.body.tutorProgress) post.tutorProgress = req.body.tutorProgress;
+      // 활동사진 파일 업로드
+      if (req.file) {
+        post.activityPhoto = {
+          filename: req.file.originalname,
+          url: `/uploads/${req.file.filename}`,
+          uploadedAt: new Date()
+        };
       }
     } else if (post.type === 'schedule') {
       if (req.body.startDate) post.schedule.startDate = req.body.startDate;
@@ -188,8 +203,8 @@ exports.updatePost = async (req, res) => {
     }
 
     // 파일 첨부 업데이트 (multer로 업로드된 파일)
-    if (req.files && req.files.length > 0) {
-      post.attachments = req.files.map(file => ({
+    if (req.files && req.files.files && req.files.files.length > 0) {
+      post.attachments = req.files.files.map(file => ({
         filename: file.originalname,
         url: `/uploads/${file.filename}`,
         uploadedAt: new Date(),

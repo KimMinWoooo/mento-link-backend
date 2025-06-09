@@ -31,19 +31,37 @@ const boardSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  week: {
-    type: Number,
-    required: function() {
-      return this.type === 'progress';
-    }
+  // 진행상황(progress) 게시글용 새 필드
+  teamNumber: {
+    type: String,
+    required: function() { return this.type === 'progress'; }
   },
-  learningGoals: [{
-    goal: String,
-    completed: {
-      type: Boolean,
-      default: false
-    }
+  session: {
+    type: String,
+    required: function() { return this.type === 'progress'; }
+  },
+  tutorName: {
+    type: String,
+    required: function() { return this.type === 'progress'; }
+  },
+  dateTime: {
+    type: String,
+    required: function() { return this.type === 'progress'; }
+  },
+  attendees: [{
+    type: String
   }],
+  learningContent: {
+    type: String
+  },
+  tutorProgress: {
+    type: String
+  },
+  activityPhoto: {
+    filename: String,
+    url: String,
+    uploadedAt: Date
+  },
   schedule: {
     startDate: Date,
     endDate: Date,
