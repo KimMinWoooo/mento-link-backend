@@ -103,31 +103,54 @@ exports.createPost = async (req, res) => {
       postData.learningContent = req.body.learningContent;
       postData.tutorProgress = req.body.tutorProgress;
       // 활동사진 파일 업로드
-      if (req.file) {
+      if (req.files && req.files.activityPhoto && req.files.activityPhoto[0]) {
+        const file = req.files.activityPhoto[0];
+        const fileUrl = `/uploads/${file.filename}`;
         postData.activityPhoto = {
-          filename: req.file.originalname,
-          url: `/uploads/${req.file.filename}`,
+          filename: file.originalname,
+          url: fileUrl,
           uploadedAt: new Date()
         };
+        // activityPhoto를 attachments에도 추가
+        postData.attachments = [{
+          filename: file.originalname,
+          url: fileUrl,
+          uploadedAt: new Date(),
+          isPublic: true
+        }];
       }
     } else if (req.body.type === 'schedule') {
-      if (!req.body.startDate || !req.body.endDate) {
-        return res.status(400).json({ message: 'Start date and end date are required for schedule posts' });
+      try {
+        const scheduleData = JSON.parse(req.body.schedule);
+        if (!scheduleData.startDate || !scheduleData.endDate) {
+          return res.status(400).json({ message: 'Start date and end date are required for schedule posts' });
+        }
+        postData.schedule = {
+          startDate: new Date(scheduleData.startDate),
+          endDate: new Date(scheduleData.endDate),
+          location: scheduleData.location || '',
+          participants: scheduleData.participants || []
+        };
+      } catch (error) {
+        console.error('Error parsing schedule data:', error);
+        return res.status(400).json({ message: 'Invalid schedule data format' });
       }
-      postData.schedule = {
-        startDate: req.body.startDate,
-        endDate: req.body.endDate,
-        location: req.body.location || '',
-        participants: req.body.participants ? req.body.participants.split(',').map(p => p.trim()) : []
-      };
     } else if (req.body.type === 'grade') {
-      if (!req.body.targetGrade || !req.body.currentGrade) {
+      // grade가 문자열로 오면 파싱
+      if (req.body.grade && typeof req.body.grade === 'string') {
+        try {
+          req.body.grade = JSON.parse(req.body.grade);
+        } catch (e) {
+          return res.status(400).json({ message: 'Invalid grade data' });
+        }
+      }
+      if (!req.body.grade || !req.body.grade.target || !req.body.grade.current) {
         return res.status(400).json({ message: 'Target grade and current grade are required for grade posts' });
       }
       postData.grade = {
-        target: req.body.targetGrade,
-        current: req.body.currentGrade,
-        semester: req.body.semester || ''
+        target: req.body.grade.target,
+        current: req.body.grade.current,
+        semester: req.body.grade.semester || ''
       };
     }
 
@@ -140,7 +163,18 @@ exports.createPost = async (req, res) => {
         isPublic: true
       }));
     } else if (req.body.attachments) {
-      postData.attachments = req.body.attachments;
+      try {
+        const attachments = JSON.parse(req.body.attachments);
+        // attachments의 url 필드를 서버에서 생성한 파일명으로 업데이트
+        if (req.files && req.files.activityPhoto && req.files.activityPhoto[0]) {
+          const file = req.files.activityPhoto[0];
+          attachments[0].url = `/uploads/${file.filename}`;
+        }
+        postData.attachments = attachments;
+      } catch (error) {
+        console.error('Error parsing attachments:', error);
+        return res.status(400).json({ message: 'Invalid attachments format' });
+      }
     }
 
     const post = new Board(postData);
@@ -182,12 +216,21 @@ exports.updatePost = async (req, res) => {
       if (req.body.learningContent) post.learningContent = req.body.learningContent;
       if (req.body.tutorProgress) post.tutorProgress = req.body.tutorProgress;
       // 활동사진 파일 업로드
-      if (req.file) {
+      if (req.files && req.files.activityPhoto && req.files.activityPhoto[0]) {
+        const file = req.files.activityPhoto[0];
+        const fileUrl = `/uploads/${file.filename}`;
         post.activityPhoto = {
-          filename: req.file.originalname,
-          url: `/uploads/${req.file.filename}`,
+          filename: file.originalname,
+          url: fileUrl,
           uploadedAt: new Date()
         };
+        // activityPhoto를 attachments에도 추가
+        post.attachments = [{
+          filename: file.originalname,
+          url: fileUrl,
+          uploadedAt: new Date(),
+          isPublic: true
+        }];
       }
     } else if (post.type === 'schedule') {
       if (req.body.startDate) post.schedule.startDate = req.body.startDate;
@@ -211,7 +254,13 @@ exports.updatePost = async (req, res) => {
         isPublic: true
       }));
     } else if (req.body.attachments) {
-      post.attachments = req.body.attachments;
+      try {
+        const attachments = JSON.parse(req.body.attachments);
+        post.attachments = attachments;
+      } catch (error) {
+        console.error('Error parsing attachments:', error);
+        return res.status(400).json({ message: 'Invalid attachments format' });
+      }
     }
 
     const updatedPost = await post.save();

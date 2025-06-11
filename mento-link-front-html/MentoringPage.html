@@ -105,8 +105,8 @@
                 <td colspan="5"><textarea id="tutorProgress" name="tutorProgress" rows="3" placeholder="튜터별로 작성" required style="width: 100%"></textarea></td>
               </tr>
               <tr>
-                <td><label for="files">활동사진</label></td>
-                <td colspan="5"><input type="file" id="files" name="files" accept="image/*"></td>
+                <td><label for="activityPhoto">활동사진</label></td>
+                <td colspan="5"><input type="file" id="activityPhoto" name="activityPhoto" accept="image/*"></td>
               </tr>
             </table>
             <div style="color: red; margin-top: 10px;">
@@ -121,11 +121,11 @@
           <div id="scheduleFields" style="display: none;">
             <div class="form-group">
               <label for="startDate">시작 일시</label>
-              <input type="datetime-local" id="startDate" name="startDate">
+              <input type="datetime-local" id="startDate" name="startDate" required>
             </div>
             <div class="form-group">
               <label for="endDate">종료 일시</label>
-              <input type="datetime-local" id="endDate" name="endDate">
+              <input type="datetime-local" id="endDate" name="endDate" required>
             </div>
             <div class="form-group">
               <label for="location">장소</label>
@@ -154,7 +154,7 @@
           </div>
 
           <div class="form-group basic-field">
-            <label for="files">파일 첨부</label>
+            <label for="files">파일 첨부 (선택사항)</label>
             <input type="file" id="files" name="files" multiple>
             <div class="file-list" id="fileList"></div>
           </div>
@@ -449,6 +449,12 @@
           // progressFields 내부 required 제거
           document.querySelectorAll('#progressFields input, #progressFields textarea').forEach(el => el.removeAttribute('required'));
         }
+        // 파일 첨부 input의 required 속성 강제 제거
+        const filesInput = document.getElementById('files');
+        if (filesInput) filesInput.removeAttribute('required');
+        // 숨겨지는 필드의 required 속성 제거
+        document.querySelectorAll('#scheduleFields input, #scheduleFields textarea').forEach(el => el.removeAttribute('required'));
+        document.querySelectorAll('#gradeFields input, #gradeFields textarea').forEach(el => el.removeAttribute('required'));
       }
 
       function closeModal() {
@@ -599,6 +605,7 @@
         // author를 실제 로그인 사용자로
         const user = JSON.parse(localStorage.getItem('user'));
         formData.append('author', user ? user.studentId : '');
+
         if (postType === 'progress') {
           formData.append('teamNumber', document.getElementById('teamNumber').value);
           formData.append('session', document.getElementById('session').value);
@@ -607,19 +614,93 @@
           formData.append('attendees', document.getElementById('attendees').value);
           formData.append('learningContent', document.getElementById('learningContent').value);
           formData.append('tutorProgress', document.getElementById('tutorProgress').value);
-          const filesInput = document.getElementById('files');
-          if (filesInput && filesInput.files.length > 0) {
-            // progress는 단일 파일만 허용
-            formData.append('files', filesInput.files[0]);
-          }
           // title/content 자동 지정
           formData.append('title', document.getElementById('session').value);
           formData.append('content', document.getElementById('learningContent').value);
+          // 활동사진(단일) - 선택사항으로 변경
+          const activityPhotoInput = document.getElementById('activityPhoto');
+          if (activityPhotoInput && activityPhotoInput.files.length > 0) {
+            const file = activityPhotoInput.files[0];
+            formData.append('activityPhoto', file);
+            // activityPhoto를 attachments에도 추가 (객체로 전송)
+            const timestamp = Date.now();
+            const random = Math.round(Math.random() * 1E9);
+            const attachment = {
+              filename: file.name,
+              url: `/uploads/${timestamp}-${random}-${file.name}`,
+              uploadedAt: new Date().toISOString(),
+              isPublic: true
+            };
+            formData.append('attachments', JSON.stringify([attachment]));
+          }
+        } else if (postType === 'schedule') {
+          formData.append('title', document.getElementById('title').value);
+          formData.append('content', document.getElementById('content').value);
+          formData.append('isPublic', document.getElementById('isPublic').checked);
+          
+          // 일정 조율 필수 필드 추가
+          const startDate = document.getElementById('startDate').value;
+          const endDate = document.getElementById('endDate').value;
+          const location = document.getElementById('location').value;
+          const participants = document.getElementById('participants').value;
+          
+          if (!startDate || !endDate) {
+            alert('시작일과 종료일은 필수 입력 항목입니다.');
+            return;
+          }
+          
+          // schedule 데이터를 JSON 형식으로 전송
+          const scheduleData = {
+            startDate: new Date(startDate).toISOString(),
+            endDate: new Date(endDate).toISOString(),
+            location: location || '',
+            participants: participants ? participants.split(',').map(p => p.trim()) : []
+          };
+          
+          // schedule 데이터를 문자열로 변환하여 전송
+          formData.append('schedule', JSON.stringify(scheduleData));
+          
+          // 첨부파일(여러개) - 선택사항으로 변경
+          const filesInput = document.getElementById('files');
+          if (filesInput && filesInput.files.length > 0) {
+            Array.from(filesInput.files).forEach(file => {
+              formData.append('files', file);
+            });
+          }
+        } else if (postType === 'grade') {
+          formData.append('title', document.getElementById('title').value);
+          formData.append('content', document.getElementById('content').value);
+          formData.append('isPublic', document.getElementById('isPublic').checked);
+
+          // 목표 학점 필드 추가
+          const targetGrade = document.getElementById('targetGrade').value;
+          const currentGrade = document.getElementById('currentGrade').value;
+          const semester = document.getElementById('semester').value;
+
+          if (!targetGrade || !currentGrade) {
+            alert('목표 학점과 현재 학점은 필수 입력 항목입니다.');
+            return;
+          }
+
+          // grade 데이터를 JSON 형식으로 전송
+          const gradeData = {
+            target: Number(targetGrade),
+            current: Number(currentGrade),
+            semester: semester || ''
+          };
+          formData.append('grade', JSON.stringify(gradeData));
+          // 첨부파일(여러개) - 선택사항
+          const filesInput = document.getElementById('files');
+          if (filesInput && filesInput.files.length > 0) {
+            Array.from(filesInput.files).forEach(file => {
+              formData.append('files', file);
+            });
+          }
         } else {
           formData.append('title', document.getElementById('title').value);
           formData.append('content', document.getElementById('content').value);
           formData.append('isPublic', document.getElementById('isPublic').checked);
-          // 파일 첨부
+          // 첨부파일(여러개) - 선택사항으로 변경
           const filesInput = document.getElementById('files');
           if (filesInput && filesInput.files.length > 0) {
             Array.from(filesInput.files).forEach(file => {
@@ -687,27 +768,34 @@
           // 첨부파일 표시
           let attachmentsHtml = '';
           if (post.attachments && post.attachments.length > 0) {
-            attachmentsHtml = `
-              <div class="attachments custom-attachments">
-              <ul>
-                ${post.attachments.map(file => {
-                  const isImage = /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(file.filename);
-                  return isImage
-                    ? `<li><div class='thumb-wrap'><img src="${file.url}" alt="${file.filename}" class='thumb-img'><a href="${file.url}" target="_blank" download>${file.filename}</a></div></li>`
-                    : `<li><a href="${file.url}" target="_blank" download>${file.filename}</a></li>`;
-                }).join('')}
-              </ul>
-              </div>
-            `;
+            if (postType !== 'progress') {
+              attachmentsHtml = `
+                <div class="attachments custom-attachments">
+                <ul>
+                  ${post.attachments.map(file => {
+                    const isImage = /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(file.filename);
+                    // 서버에서 반환된 URL을 사용
+                    const fileUrl = file.url;
+                    if (!fileUrl) return ''; // URL이 없는 경우 빈 문자열 반환
+                    return isImage
+                      ? `<li><div class='thumb-wrap'><img src="${fileUrl}" alt="${file.filename}" class='thumb-img'><a href="${fileUrl}" target="_blank" download>${file.filename}</a></div></li>`
+                      : `<li><a href="${fileUrl}" target="_blank" download>${file.filename}</a></li>`;
+                  }).join('')}
+                </ul>
+                </div>
+              `;
+            }
           }
 
           // 게시판 타입별 추가 내용 표시
           const additionalContent = document.getElementById('viewAdditionalContent');
           additionalContent.innerHTML = '';
-          if (attachmentsHtml && postType !== 'progress') additionalContent.innerHTML += attachmentsHtml;
+          if (attachmentsHtml) additionalContent.innerHTML += attachmentsHtml;
 
           // 진행상황/일정/학점 등 추가 내용
           if (postType === 'progress') {
+            console.log('Post data:', post); // 디버깅을 위한 로그
+            console.log('Attachments:', post.attachments); // 디버깅을 위한 로그
             // 표 양식에서 제목/내용(회차/학습내용) 항목 제거
             additionalContent.innerHTML += `
               <table class="progress-detail-table custom-progress-table">
@@ -719,7 +807,15 @@
                 <tr><th>학습상황(튜터별)</th><td>${post.tutorProgress || ''}</td></tr>
                 <tr><th>활동사진</th><td>
                   ${(post.attachments && post.attachments.length > 0)
-                    ? post.attachments.filter(f => /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(f.filename)).map(f => `<img src="${f.url}" alt="활동사진" style="max-width: 300px; margin-top: 10px; margin-bottom: 5px;">`).join('')
+                    ? post.attachments.filter(f => {
+                        console.log('Checking file:', f); // 디버깅을 위한 로그
+                        return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(f.filename);
+                      }).map(f => {
+                        console.log('Processing file:', f); // 디버깅을 위한 로그
+                        const fileUrl = f.url;
+                        console.log('File URL:', fileUrl); // 디버깅을 위한 로그
+                        return fileUrl ? `<img src="${fileUrl}" alt="활동사진" style="max-width: 300px; margin-top: 10px; margin-bottom: 5px;">` : '';
+                      }).join('')
                     : '없음'}
                 </td></tr>
               </table>

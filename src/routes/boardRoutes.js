@@ -11,14 +11,22 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, '../../uploads'));
   },
   filename: function (req, file, cb) {
+    // 파일명에 한글이 포함되어 있어도 그대로 사용
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    // 원본 파일명을 그대로 사용하되, 타임스탬프와 랜덤값을 앞에 추가
     cb(null, uniqueSuffix + '-' + file.originalname);
   }
 });
 const upload = multer({ storage: storage });
 
 // activityPhoto(1개), files(최대 10개)만 허용
-const uploadFields = multer({ storage: storage }).fields([
+const uploadFields = multer({ 
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    // 파일명에 한글이 포함되어 있어도 허용
+    cb(null, true);
+  }
+}).fields([
   { name: 'activityPhoto', maxCount: 1 },
   { name: 'files', maxCount: 10 }
 ]);
